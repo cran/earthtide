@@ -19,10 +19,10 @@
   
 
   # pole tide
-  x_pol  <- stats::spline(dut1$datetime, dut1$x, xout = self$datetime$utc, ties = 'ordered')$y
-  y_pol  <- stats::spline(dut1$datetime, dut1$y, xout = self$datetime$utc, ties = 'ordered')$y
-  dx_pol <- stats::spline(dut1$datetime, dut1$dx, xout = self$datetime$utc, ties = 'ordered')$y
-  dy_pol <- stats::spline(dut1$datetime, dut1$dy, xout = self$datetime$utc, ties = 'ordered')$y
+  x_pol  <- interpolate_dut1(self$datetime$utc, 'x', self$datetime$eop)
+  y_pol  <- interpolate_dut1(self$datetime$utc, 'y', self$datetime$eop) 
+  dx_pol <- interpolate_dut1(self$datetime$utc, 'dx', self$datetime$eop) 
+  dy_pol <- interpolate_dut1(self$datetime$utc, 'dy', self$datetime$eop) 
   
   self$pole_t <- 1.16 * 2.0 * angular_velocity^2 * 
     earth_radius * cos_lat * sin_lat * ((x_pol) * cos_lon - 
@@ -30,7 +30,7 @@
   
   
   # lod tide
-  lod_spline <- stats::spline(dut1$datetime, dut1$lod, xout = self$datetime$utc, ties = 'ordered')$y
+  lod_spline <- interpolate_dut1(self$datetime$utc, 'lod', self$datetime$eop)
   self$lod_t = 1.16 * 2.0 * lod_spline * 
     angular_velocity^2 * earth_radius *
     cos_lat * cos_lat * 1.e9 / 86400.0

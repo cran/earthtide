@@ -48,7 +48,50 @@ test_that("earthtide works", {
                       catalog = 'ksm04',
                       wave_groups = wave_groups)
 
-  expect_warning(et$predict(method = 'tidal_potential', astro_update = 1L))
+  expect_warning(et$predict(method = 'tidal_potential', astro_update = 2L))
+  expect_silent(et$predict(method = 'tidal_potential', astro_update = 1L))
+  
+
+  expect_silent(et <- Earthtide$new(utc = tms, 
+                      latitude = 52.3868,
+                      longitude = 9.7144,
+                      elevation = 110,
+                      gravity = 9.8127, 
+                      cutoff = 1.0e-4,
+                      catalog = 'ksm04',
+                      wave_groups = wave_groups, 
+                      eop = earthtide:::dut1))
+  
+  expect_error(et <- Earthtide$new(utc = tms, 
+                              latitude = 52.3868,
+                              longitude = 9.7144,
+                              elevation = 110,
+                              gravity = 9.8127, 
+                              cutoff = 1.0e-4,
+                              catalog = 'ksm04',
+                              wave_groups = wave_groups, 
+                              eop = data.frame(datetime = 0)))
+  
+  
+  mult <- 1.5
+  tms <- as.POSIXct('1990-01-01', tz = 'UTC') + c(0, 3600)
+  wave_groups = data.frame(start = 0, end = 8, multiplier = 1.5)
+  
+  et <- Earthtide$new(utc = tms, 
+                      latitude = 52.3868,
+                      longitude = 9.7144,
+                      elevation = 110,
+                      gravity = 9.8127, 
+                      cutoff = 1.0e-10,
+                      catalog = 'ksm04',
+                      wave_groups = wave_groups)
+  
+  et$predict(method = 'tidal_potential', astro_update = 1L)
+  
+  tide <- et$tide()
+  expect_equal(tide$tidal_potential, 1.5 * c(1.422, 1.890), tolerance = 0.001)
+  
+  
   
 })
 

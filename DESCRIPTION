@@ -2,7 +2,7 @@ Package: earthtide
 Type: Package
 Title: Parallel Implementation of 'ETERNA 3.40' for Prediction and
         Analysis of Earth Tides
-Version: 0.0.4
+Version: 0.0.5
 Authors@R: c(person("Jonathan", "Kennel", email = "jkennel@uoguelph.ca", role = c("aut", "cre", "trl")), 
              person("Beth", "Parker", email = "bparker@uoguelph.ca", role = "ths"),
              person("Wenzel", "Hans-Georg", role = "ctb"))
@@ -19,15 +19,16 @@ Depends: R (>= 3.4.0)
 Imports: Rcpp (>= 1.0.0), RcppParallel (>= 4.4.2), R6 (>= 2.3.0)
 LinkingTo: Rcpp (>= 1.0.0), RcppParallel (>= 4.4.2), RcppArmadillo (>=
         0.9.200.7.0), BH (>= 1.69.0-1)
-RoxygenNote: 6.1.1
 Suggests: testthat, knitr, rmarkdown
+RoxygenNote: 6.1.1
 VignetteBuilder: knitr
 Encoding: UTF-8
 LazyData: TRUE
 NeedsCompilation: yes
-Packaged: 2019-03-13 23:45:30 UTC; kennel
+SystemRequirements: C++11
+Packaged: 2019-03-28 13:28:20 UTC; kennel
 Author: Jonathan Kennel [aut, cre, trl],
   Beth Parker [ths],
   Wenzel Hans-Georg [ctb]
 Repository: CRAN
-Date/Publication: 2019-03-15 17:20:10 UTC
+Date/Publication: 2019-03-28 14:10:03 UTC

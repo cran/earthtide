@@ -20,6 +20,7 @@
 #' }
 #' 
 #' @section Arguments:
+#' \code{Earthtide$new}
 #' \itemize{
 #'   \item{et: }{An \code{Earthtide} object.}
 #'   \item{utc: }{The date-time in UTC (POSIXct vector).}
@@ -35,9 +36,19 @@
 #'   \item{cutoff: }{Cutoff amplitude for constituents (numeric) 
 #'     defaults to 1e-6}
 #'   \item{wave_groups: }{Two column data.frame having start and end of 
-#'     frequency groups (data.frame).}
-#'   \item{catalog: }{Use the "hw95s" catalog or "ksm04" catalog(character).}
+#'     frequency groups (data.frame). This data.frame must have two columns
+#'     with the names 'start', and 'end' signifying the start and end of the 
+#'     wave groupings.  An optional third column 'multiplier' can be provided 
+#'     to scale the particular wave group.  If column names do no match, the
+#'     inferred column positions are start, end, multiplier.}
+#'   \item{catalog: }{Use the "hw95s" catalog or "ksm04" catalog (character).}
+#'   \item{eop: }{User defined Earth Orientation Parameter (EOP) data.frame with the 
+#'     following columns: datetime, ddt, ut1_utc, lod, x, y, dx, dy}
 #'   \item{...: }{Currently not used.}
+#' }
+#' 
+#' \code{Earthtide$predict, Earthtide$analyze}
+#' \itemize{
 #'   \item{method: }{For \code{predict} and \code{analyze}. One of "gravity", 
 #'     "tidal_potential", "tidal_tilt", "vertical_displacement", 
 #'     "vertical_strain", "areal_strain", "volume_strain", or "ocean_tides".}
@@ -50,10 +61,9 @@
 #' 
 #' @section Details:
 #' 
-#' \code{$new(utc, latitude, longitude, elevation, azimuth, gravity, 
-#'   earth_radius, earth_eccen, cutoff, wave_groups, catalog, ...)} 
-#'   create a new \code{Earthtide} object and initialize catalog, 
-#'   station and times.
+#' \code{$new(utc, latitude, longitude, elevation, azimuth, gravity,} \cr
+#' \code{earth_radius, earth_eccen, cutoff, wave_groups, catalog, ...)} \cr
+#' create a new \code{Earthtide} object and initialize catalog, station and times.
 #' 
 #' \code{$predict(method, astro_argument)} generate a combined 
 #'   synthetic Earth tide.
@@ -74,13 +84,14 @@
 #' @importFrom R6 R6Class
 #' @importFrom stats approx
 #' @importFrom utils read.table
+#' @importFrom utils read.fwf
 #' @importFrom utils download.file
 #' @importFrom utils data
 #' @format An \code{\link{R6Class}} generator object
 #' 
 #' 
-#' @references Hartmann, T., Wenzel, H.-G., 1995. The HW95 tidal potential catalogue. Geophys. Res. Lett. 22, 3553–3556. \doi{10.1029/95GL03324}
-#' @references Kudryavtsev, S.M., 2004. Improved harmonic development of the Earth tide-generating potential. J. Geod. 77, 829–838. \doi{10.1007/s00190-003-0361-2}
+#' @references Hartmann, T., Wenzel, H.-G., 1995. The HW95 tidal potential catalogue. Geophys. Res. Lett. 22, 3553-3556. \doi{10.1029/95GL03324}
+#' @references Kudryavtsev, S.M., 2004. Improved harmonic development of the Earth tide-generating potential. J. Geod. 77, 829-838. \doi{10.1007/s00190-003-0361-2}
 #' @references Wenzel, H.G., 1996. The nanogal software: Earth tide data processing package ETERNA 3.30. Bull. Inf. Marées Terrestres, 124, pp.9425-9439. \url{http://www.eas.slu.edu/GGP/ETERNA34/MANUAL/ETERNA33.HTM}
 #' 
 #' @examples
@@ -114,12 +125,13 @@ Earthtide <- R6Class("et",
                           earth_radius = 6378136.3,
                           earth_eccen = 6.69439795140e-3,
                           cutoff = 1e-6,
-                          wave_groups = NA_real_,
+                          wave_groups = NULL,
                           catalog = 'ksm04',
+                          eop = NULL,
                           ...) {
       
       # Initialize class using input values
-      self$prepare_datetime(utc)
+      self$prepare_datetime(utc, eop)
       
       self$prepare_station(latitude, longitude, elevation, azimuth, gravity,
                            earth_radius, earth_eccen)
@@ -134,8 +146,8 @@ Earthtide <- R6Class("et",
     },
     
     # Initialize class using input values
-    prepare_datetime = function(utc) {
-      self$datetime <- .prepare_datetime(utc)
+    prepare_datetime = function(utc, eop) {
+      self$datetime <- .prepare_datetime(utc, eop)
       self$tides <- data.frame(datetime = utc)
     },
     
@@ -146,7 +158,7 @@ Earthtide <- R6Class("et",
     
     # Subset values based using a cutoff amplitude and 
     # cutoff frequencies
-    prepare_catalog = function(cutoff, wave_groups, catalog = 'ksm04') {
+    prepare_catalog = function(cutoff, wave_groups = NULL, catalog = 'ksm04') {
       
       self$catalog <- .prepare_catalog(cutoff, wave_groups, catalog = catalog)
       
@@ -174,8 +186,10 @@ Earthtide <- R6Class("et",
         return(1L)
       }
       
-      if (length(dt) != 1) {
-        warning('Times are not regularly spaced, setting astro_update to 1') 
+      if (length(dt) != 1L) {
+        if (astro_update != 1L) {
+          warning('Times are not regularly spaced, setting astro_update to 1') 
+        }
         astro_update <- 1L
         self$update_coef <- 0.0
       } else {
@@ -186,7 +200,6 @@ Earthtide <- R6Class("et",
       astro_update
       
     },
-    
     gravity = function(){
 
       self$station$dgk <- self$station$dgz
@@ -217,7 +230,6 @@ Earthtide <- R6Class("et",
       self$deltar = self$love_params$dkr - self$love_params$dhr
       
     }, 
-    
     vertical_displacement = function() {
       dfak <- 1e3 / self$station$gravity
       self$station$dgk[1:12] <- self$station$dgk[1:12] * 
@@ -241,7 +253,6 @@ Earthtide <- R6Class("et",
     #   self$pk[wh] <- 180 / pi * atan2(y_comp, x_comp)
     #   
     # },
-    
     vertical_strain = function(poisson = 0.25) {
       dfak <- 1.e9 * poisson / (poisson - 1.0)
       self$strain(dfak)
@@ -268,7 +279,6 @@ Earthtide <- R6Class("et",
       self$station$dgk <- self$station$dgk * dfak
       self$pk[] <- 0.0
     },
-
     predict = function(method = 'gravity', astro_update = 1L) {
       
       self$apply_method(method) 
@@ -285,7 +295,6 @@ Earthtide <- R6Class("et",
                            self$station$earth_eccen)
       invisible(self)
     },
-
     analyze = function(method = 'gravity', astro_update = 1L) {
       
       self$apply_method(method)
@@ -316,7 +325,6 @@ Earthtide <- R6Class("et",
       } else if (method == 'volume_strain') {
         self$volume_strain()
       } 
-      
     },
     calculate = function(astro_update = 1L, predict = TRUE) {
       et_calculate(self$astro$astro,
@@ -339,6 +347,7 @@ Earthtide <- R6Class("et",
                  self$catalog$id,
                  astro_update,
                  self$update_coef, 
+                 self$catalog$wave_groups$multiplier,
                  predict)
     },
     pole_tide = function() {

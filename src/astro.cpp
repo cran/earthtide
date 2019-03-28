@@ -1,11 +1,13 @@
 
+#define BOOST_DISABLE_ASSERTS
+#define ARMA_DONT_PRINT_ERRORS
+
 // [[Rcpp::depends(BH)]]
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::depends(RcppParallel)]]
 
 
 #include <RcppArmadillo.h>
-#define NDEBUG 1
 #include <RcppParallel.h>
 #include <boost/math/special_functions/legendre.hpp>
 #include <boost/math/special_functions/factorials.hpp>
@@ -40,23 +42,24 @@ T mod(T a, int n)
 
 
 //==============================================================================
-//' @title
-//' time_mat
-//'
-//' @description
-//' Matrix to multiply by astrological.  Code adapted from ETERNA.
-//'
-//' @param time the times to calculate astrological parameters
-//'
-//' @return matrix of times
-//'
-//' @author Jonathan Kennel, \email{jkennel@uoguelph.ca}
-//'
-//' @references Wenzel, H.-G. (1996): The nanogal software: Earth tide data
-//' processing package ETERNA 3.3. Bulletin d'Informations
-//' Marees Terrestres vol. 124, 9425-9439, Bruxelles 1996.
-//'
-//'
+// @title
+// time_mat
+//
+// @description
+// Matrix to multiply by astrological.  Code adapted from ETERNA.
+//
+// @param time the times to calculate astrological parameters
+//
+// @return matrix of times
+//
+// @author Jonathan Kennel, \email{jkennel@uoguelph.ca}
+//
+// @references Wenzel, H.-G. (1996): The nanogal software: Earth tide data
+// processing package ETERNA 3.3. Bulletin d'Informations
+// Marees Terrestres vol. 124, 9425-9439, Bruxelles 1996.
+// 
+// @keywords internal
+//
 // [[Rcpp::export]]
 arma::mat time_mat(const arma::rowvec time) {
   
@@ -74,23 +77,24 @@ arma::mat time_mat(const arma::rowvec time) {
 
 
 //==============================================================================
-//' @title
-//' time_der_mat
-//'
-//' @description
-//' Matrix to multiply by astrological.  Code adapted from ETERNA.
-//'
-//' @param time the times to calculate the derivatives of the astrological parameters
-//'
-//' @return matrix of time derivatives
-//'
-//' @author Jonathan Kennel, \email{jkennel@uoguelph.ca}
-//'
-//' @references Wenzel, H.-G. (1996): The nanogal software: Earth tide data
-//' processing package ETERNA 3.3. Bulletin d'Informations
-//' Marees Terrestres vol. 124, 9425-9439, Bruxelles 1996.
-//'
-//'
+// @title
+// time_der_mat
+//
+// @description
+// Matrix to multiply by astrological.  Code adapted from ETERNA.
+//
+// @param time the times to calculate the derivatives of the astrological parameters
+//
+// @return matrix of time derivatives
+//
+// @author Jonathan Kennel, \email{jkennel@uoguelph.ca}
+//
+// @references Wenzel, H.-G. (1996): The nanogal software: Earth tide data
+// processing package ETERNA 3.3. Bulletin d'Informations
+// Marees Terrestres vol. 124, 9425-9439, Bruxelles 1996.
+// 
+// @keywords internal
+//
 // [[Rcpp::export]]
 arma::mat time_der_mat(const arma::rowvec time) {
   
@@ -108,27 +112,28 @@ arma::mat time_der_mat(const arma::rowvec time) {
 
 
 //==============================================================================
-//' @title
-//' astro
-//'
-//' @description
-//' Calculate astronomical parameters.  Code adapted from ETERNA.
-//'
-//' @param t_astro astronomical time
-//' @param simon coefficient matrix
-//' @param longitude the longitude
-//' @param hours hour or measurement
-//' @param ddt time in ddt
-//'
-//' @return astonomical parameters
-//'
-//' @author Jonathan Kennel, \email{jkennel@uoguelph.ca}
-//'
-//' @references Wenzel, H.-G. (1996): The nanogal software: Earth tide data
-//' processing package ETERNA 3.3. Bulletin d'Informations
-//' Marees Terrestres vol. 124, 9425-9439, Bruxelles 1996.
-//'
-//'
+// @title
+// astro
+//
+// @description
+// Calculate astronomical parameters.  Code adapted from ETERNA.
+//
+// @param t_astro astronomical time
+// @param simon coefficient matrix
+// @param longitude the longitude
+// @param hours hour or measurement
+// @param ddt time in ddt
+//
+// @return astonomical parameters
+//
+// @author Jonathan Kennel, \email{jkennel@uoguelph.ca}
+//
+// @references Wenzel, H.-G. (1996): The nanogal software: Earth tide data
+// processing package ETERNA 3.3. Bulletin d'Informations
+// Marees Terrestres vol. 124, 9425-9439, Bruxelles 1996.
+// 
+// @keywords internal
+//
 // [[Rcpp::export]]
 arma::mat astro(const arma::rowvec t_astro,
                 const arma::mat simon,
@@ -151,24 +156,24 @@ arma::mat astro(const arma::rowvec t_astro,
 
 
 //==============================================================================
-//' @title
-//' astro_der
-//'
-//' @description
-//' Calculate derivatives of astronomical parameters.  Code adapted from ETERNA.
-//'
-//' @param t_astro astronomical time
-//' @param simon coefficient matrix
-//'
-//' @return derivative astonomical parameters
-//'
-//' @author Jonathan Kennel, \email{jkennel@uoguelph.ca}
-//'
-//' @references Wenzel, H.-G. (1996): The nanogal software: Earth tide data
-//' processing package ETERNA 3.3. Bulletin d'Informations
-//' Marees Terrestres vol. 124, 9425-9439, Bruxelles 1996.
-//'
-//'
+// @title
+// astro_der
+//
+// @description
+// Calculate derivatives of astronomical parameters.  Code adapted from ETERNA.
+//
+// @param t_astro astronomical time
+// @param simon coefficient matrix
+//
+// @return derivative astonomical parameters
+//
+// @author Jonathan Kennel, \email{jkennel@uoguelph.ca}
+//
+// @references Wenzel, H.-G. (1996): The nanogal software: Earth tide data
+// processing package ETERNA 3.3. Bulletin d'Informations
+// Marees Terrestres vol. 124, 9425-9439, Bruxelles 1996.
+//
+//
 // [[Rcpp::export]]
 arma::mat astro_der(const arma::rowvec t_astro,
                     const arma::mat simon) {
@@ -186,46 +191,46 @@ arma::mat astro_der(const arma::rowvec t_astro,
 
 // helpful content https://www.mat.univie.ac.at/~westra/associatedlegendrefunctions.pdf
 //==============================================================================
-//' @title
-//' legendre_bh
-//'
-//' @description
-//' legendre function
-//'
-//' @param l maximum degree
-//' @param m the m value
-//' @param x the x value
-//' @param csphase the csphase value
-//'
-//' @return legendre scale
-//'
-//'
-//'
+// @title
+// legendre_bh
+//
+// @description
+// legendre function
+//
+// @param l maximum degree
+// @param m the m value
+// @param x the x value
+// @param csphase the csphase value
+//
+// @return legendre scale
+// 
+// @keywords internal
+//
 // [[Rcpp::export]]
 double legendre_bh(int l, int m, double x, int csphase = -1) {
   
   
-  return(boost::math::legendre_p(l, m, x) * pow(csphase, m));
+  return(boost::math::legendre_p(l, m, x) * std::pow(csphase, m));
   
 }
 
 
 // helpful content https://www.mat.univie.ac.at/~westra/associatedlegendrefunctions.pdf
 //==============================================================================
-//' @title
-//' legendre_deriv_bh
-//'
-//' @description
-//' Scaling for legendre function
-//'
-//' @param l maximum degree
-//' @param m the x value
-//' @param x the x value
-//'
-//' @return legendre scale
-//'
-//'
-//'
+// @title
+// legendre_deriv_bh
+//
+// @description
+// Scaling for legendre function
+//
+// @param l maximum degree
+// @param m the x value
+// @param x the x value
+//
+// @return legendre scale
+//
+// @keywords internal
+//
 // [[Rcpp::export]]
 double legendre_deriv_bh(int l, int m, double x) {
   
@@ -238,52 +243,52 @@ double legendre_deriv_bh(int l, int m, double x) {
 
 
 //==============================================================================
-//' @title
-//' scale_legendre_bh
-//'
-//' @description
-//' Scaling for legendre function
-//'
-//' @param l maximum degree
-//' @param m the x value
-//'
-//' @return legendre scale
-//'
-//'
-//'
+// @title
+// scale_legendre_bh
+//
+// @description
+// Scaling for legendre function
+//
+// @param l maximum degree
+// @param m the x value
+//
+// @return legendre scale
+//
+// @keywords internal
+//
 // [[Rcpp::export]]
 double scale_legendre_bh(int l, int m) {
   
-  int k;
+  double k;
   
   if(m == 0) {
-    k = 1;
+    k = 1.0;
   } else {
-    k = 2;
+    k = 2.0;
   }
   
   double num   = boost::math::factorial<double>(l - m);
   double denom = boost::math::factorial<double>(l + m);
   
-  return(sqrt(k * (2.0 * l + 1.0) * num /  denom));
+  return(std::sqrt((double) (k * (2.0 * l + 1.0) * num /  denom)));
   
 }
 
 
 //==============================================================================
-//' @title
-//' legendre
-//'
-//' @description
-//' Calculate legendre
-//'
-//' @param l_max maximum degree
-//' @param x the x value
-//'
-//' @return legendre polynomials
-//'
-//'
-//'
+// @title
+// legendre
+//
+// @description
+// Calculate legendre
+//
+// @param l_max maximum degree
+// @param x the x value
+//
+// @return legendre polynomials
+// 
+// @keywords internal
+//
 // [[Rcpp::export]]
 Rcpp::NumericMatrix legendre(int l_max, double x) {  
   
@@ -312,41 +317,42 @@ Rcpp::NumericMatrix legendre(int l_max, double x) {
 
 
 //==============================================================================
-//' @title
-//' et_analyze
-//'
-//' @description
-//' Calculate tidal potential for a single time and multiple waves.  Code adapted from ETERNA.
-//'
-//' @param astro vector astronomical parameters
-//' @param astro_der vector derivative of astronomical parameters
-//' @param k_mat matrix tidal catalog values
-//' @param pk vector of phases for each group
-//' @param body vector of body tide for each group
-//' @param body_inds indices of body max for each group
-//' @param delta vector body
-//' @param deltar double gravimentric factor
-//' @param x0 vector tidal catalog values
-//' @param y0 vector tidal catalog values
-//' @param x1 vector tidal catalog values
-//' @param y1 vector tidal catalog values
-//' @param x2 vector tidal catalog values
-//' @param y2 vector tidal catalog values
-//' @param j2000 double Julian date
-//' @param o1 double frequency
-//' @param resonance double frequency
-//' @param max_amp int index of the wave with maximum amplitude in wave group
-//' @param update_coef double constant for phase updating
-//'
-//' @return synthetic gravity
-//'
-//' @author Jonathan Kennel, \email{jkennel@uoguelph.ca}
-//' 
-//' @references Wenzel, H.-G. (1996): The nanogal software: Earth tide data
-//' processing package ETERNA 3.3. Bulletin d'Informations
-//' Marees Terrestres vol. 124, 9425-9439, Bruxelles 1996.
-//' 
-//'
+// @title
+// et_analyze
+//
+// @description
+// Calculate tidal potential for a single time and multiple waves.  Code adapted from ETERNA.
+//
+// @param astro vector astronomical parameters
+// @param astro_der vector derivative of astronomical parameters
+// @param k_mat matrix tidal catalog values
+// @param pk vector of phases for each group
+// @param body vector of body tide for each group
+// @param body_inds indices of body max for each group
+// @param delta vector body
+// @param deltar double gravimentric factor
+// @param x0 vector tidal catalog values
+// @param y0 vector tidal catalog values
+// @param x1 vector tidal catalog values
+// @param y1 vector tidal catalog values
+// @param x2 vector tidal catalog values
+// @param y2 vector tidal catalog values
+// @param j2000 double Julian date
+// @param o1 double frequency
+// @param resonance double frequency
+// @param max_amp int index of the wave with maximum amplitude in wave group
+// @param update_coef double constant for phase updating
+//
+// @return synthetic gravity
+//
+// @author Jonathan Kennel, \email{jkennel@uoguelph.ca}
+// 
+// @references Wenzel, H.-G. (1996): The nanogal software: Earth tide data
+// processing package ETERNA 3.3. Bulletin d'Informations
+// Marees Terrestres vol. 124, 9425-9439, Bruxelles 1996.
+// 
+// @keywords internal
+//
 // [[Rcpp::export]]
 arma::mat et_analyze(const arma::mat astro,
                          const arma::mat astro_der,
@@ -443,41 +449,43 @@ arma::mat et_analyze(const arma::mat astro,
 
 
 //==============================================================================
-//' @title
-//' et_predict
-//'
-//' @description
-//' Calculate tidal potential for a single time and multiple waves.  Code adapted from ETERNA.
-//'
-//' @param astro vector astronomical parameters
-//' @param astro_der vector derivative of astronomical parameters
-//' @param k_mat matrix tidal catalog values
-//' @param pk vector of phases for each group
-//' @param body vector of body tide for each group
-//' @param body_inds indices of body max for each group
-//' @param delta vector body
-//' @param deltar double gravimentric factor
-//' @param x0 vector tidal catalog values
-//' @param y0 vector tidal catalog values
-//' @param x1 vector tidal catalog values
-//' @param y1 vector tidal catalog values
-//' @param x2 vector tidal catalog values
-//' @param y2 vector tidal catalog values
-//' @param j2000 double Julian date
-//' @param o1 double frequency
-//' @param resonance double frequency
-//' @param max_amp int index of the wave with maximum amplitude in wave group
-//' @param update_coef double constant for phase updating
-//'
-//' @return synthetic gravity
-//'
-//' @author Jonathan Kennel, \email{jkennel@uoguelph.ca}
-//' 
-//' @references Wenzel, H.-G. (1996): The nanogal software: Earth tide data
-//' processing package ETERNA 3.3. Bulletin d'Informations
-//' Marees Terrestres vol. 124, 9425-9439, Bruxelles 1996.
-//' 
-//'
+// @title
+// et_predict
+//
+// @description
+// Calculate tidal potential for a single time and multiple waves.  Code adapted from ETERNA.
+//
+// @param astro vector astronomical parameters
+// @param astro_der vector derivative of astronomical parameters
+// @param k_mat matrix tidal catalog values
+// @param pk vector of phases for each group
+// @param body vector of body tide for each group
+// @param body_inds indices of body max for each group
+// @param delta vector body
+// @param deltar double gravimentric factor
+// @param x0 vector tidal catalog values
+// @param y0 vector tidal catalog values
+// @param x1 vector tidal catalog values
+// @param y1 vector tidal catalog values
+// @param x2 vector tidal catalog values
+// @param y2 vector tidal catalog values
+// @param j2000 double Julian date
+// @param o1 double frequency
+// @param resonance double frequency
+// @param max_amp int index of the wave with maximum amplitude in wave group
+// @param update_coef double constant for phase updating
+//
+// @return synthetic gravity
+//
+// @author Jonathan Kennel, \email{jkennel@uoguelph.ca}
+// 
+// @references Wenzel, H.-G. (1996): The nanogal software: Earth tide data
+// processing package ETERNA 3.3. Bulletin d'Informations
+// Marees Terrestres vol. 124, 9425-9439, Bruxelles 1996.
+// 
+// 
+// @keywords internal
+//
 // [[Rcpp::export]]
 arma::mat et_predict(const arma::mat astro,
                          const arma::mat astro_der,
@@ -510,7 +518,7 @@ arma::mat et_predict(const arma::mat astro,
   arma::vec cos_dc2(nr), sin_dc2(nr);
   arma::vec dummy(nr), cos_c(nr), sin_c(nr);
   arma::vec fac = body;
-  arma::vec output(nt, 1);
+  arma::mat output(nt, 1);
   
   
   dc2 = arma::vectorise(k_mat * astro.col(0) + pk + 360.0);
@@ -522,9 +530,12 @@ arma::mat et_predict(const arma::mat astro,
   fac(body_inds) = delta + deltar * (dc3(body_inds) - o1) / (resonance - dc3(body_inds));
   fac = fac / fac(max_amp);
   
+  
   // determine phase correction
   cos_dc2 = arma::cos(dc2);
   sin_dc2 = arma::sin(dc2);
+  
+  
   
   if (nt == 1) {
     
@@ -589,6 +600,7 @@ struct earthtide_worker : public Worker
   const arma::uvec i_max;
   int astro_update;
   double update_coef;
+  const arma::vec multiplier;
   bool predict;
   arma::mat& output;
   
@@ -613,12 +625,14 @@ struct earthtide_worker : public Worker
                    const arma::uvec i_max,
                    int astro_update,
                    double update_coef,
+                   const arma::vec multiplier,
                    bool predict,
                    arma::mat& output)
     : astro(astro), astro_der(astro_der), k_mat(k_mat), pk(pk), body(body),body_inds(body_inds), delta(delta), deltar(deltar),
       x0(x0),  y0(y0), x1(x1), y1(y1), x2(x2), y2(y2),
       j2000(j2000), o1(o1), resonance(resonance), inds(inds), i_max(i_max),
-      astro_update(astro_update), update_coef(update_coef), predict(predict), output(output) {}
+      astro_update(astro_update), update_coef(update_coef), multiplier(multiplier),
+      predict(predict), output(output) {}
   
   
   void operator()(std::size_t begin_row, std::size_t end_row) {
@@ -641,7 +655,7 @@ struct earthtide_worker : public Worker
           // r_start = (j * 2);
           // r_end = (j * 2 + 1);
           
-          output(arma::span(start, end), 0) += et_predict(
+          output(arma::span(start, end), 0) += multiplier[j] * et_predict(
             astro.cols(arma::span(start, end)),
             astro_der.cols(arma::span(start, end)),
             k_mat.rows(inds(j)),
@@ -677,7 +691,7 @@ struct earthtide_worker : public Worker
           r_start = (j * 2);
           r_end = (j * 2 + 1);
           
-          output(arma::span(start, end), arma::span(r_start, r_end)) = et_analyze(
+          output(arma::span(start, end), arma::span(r_start, r_end)) = multiplier[j] * et_analyze(
             astro.cols(arma::span(start, end)),
             astro_der.cols(arma::span(start, end)),
             k_mat.rows(inds(j)),
@@ -705,43 +719,45 @@ struct earthtide_worker : public Worker
 
 
 //==============================================================================
-//' @title
-//' et_calculate
-//'
-//' @description
-//' Parallel calculation of tidal potential for a single time and multiple waves.  Code adapted from ETERNA.
-//'
-//' @param astro matrix astronomical parameters
-//' @param astro_der matrix derivative of astronomical parameters
-//' @param k_mat matrix tidal catalog values
-//' @param phases vector phases
-//' @param delta vector body
-//' @param deltar double gravimentric factor
-//' @param c0 vector tidal catalog values
-//' @param s0 vector tidal catalog values
-//' @param c1 vector tidal catalog values
-//' @param s1 vector tidal catalog values
-//' @param c2 vector tidal catalog values
-//' @param s2 vector tidal catalog values
-//' @param dgk vector geodetic coefficients
-//' @param jcof vector wave index
-//' @param j2000 double Julian date
-//' @param o1 double frequency
-//' @param resonance double frequency
-//' @param index vector wave group index
-//' @param astro_update how often to recalculate astronomical parameters
-//' @param update_coef time for approx
-//' @param predict predict or analyze
-//'
-//' @return synthetic gravity
-//'
-//' @author Jonathan Kennel, \email{jkennel@uoguelph.ca}
-//' 
-//' @references Wenzel, H.-G. (1996): The nanogal software: Earth tide data
-//' processing package ETERNA 3.3. Bulletin d'Informations
-//' Marees Terrestres vol. 124, 9425-9439, Bruxelles 1996.
-//' 
-//'
+// @title
+// et_calculate
+//
+// @description
+// Parallel calculation of tidal potential for a single time and multiple waves.  Code adapted from ETERNA.
+//
+// @param astro matrix astronomical parameters
+// @param astro_der matrix derivative of astronomical parameters
+// @param k_mat matrix tidal catalog values
+// @param phases vector phases
+// @param delta vector body
+// @param deltar double gravimentric factor
+// @param c0 vector tidal catalog values
+// @param s0 vector tidal catalog values
+// @param c1 vector tidal catalog values
+// @param s1 vector tidal catalog values
+// @param c2 vector tidal catalog values
+// @param s2 vector tidal catalog values
+// @param dgk vector geodetic coefficients
+// @param jcof vector wave index
+// @param j2000 double Julian date
+// @param o1 double frequency
+// @param resonance double frequency
+// @param index vector wave group index
+// @param astro_update how often to recalculate astronomical parameters
+// @param update_coef time for approx
+// @param magnifier scale the wave group value
+// @param predict predict or analyze
+//
+// @return synthetic gravity
+//
+// @author Jonathan Kennel, \email{jkennel@uoguelph.ca}
+// 
+// @references Wenzel, H.-G. (1996): The nanogal software: Earth tide data
+// processing package ETERNA 3.3. Bulletin d'Informations
+// Marees Terrestres vol. 124, 9425-9439, Bruxelles 1996.
+// 
+// @keywords internal
+//
 // [[Rcpp::export]]
 arma::mat et_calculate(const arma::mat astro,
                        const arma::mat astro_der,
@@ -763,6 +779,7 @@ arma::mat et_calculate(const arma::mat astro,
                        const arma::ivec index,
                        int astro_update,
                        double update_coef,
+                       const arma::vec magnifier,
                        bool predict) {
   
   
@@ -834,6 +851,7 @@ arma::mat et_calculate(const arma::mat astro,
                       i_max,
                       astro_update,
                       update_coef,
+                      magnifier,
                       predict,
                       output);
   

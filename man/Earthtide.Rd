@@ -30,6 +30,7 @@ et$print()
 
 \section{Arguments}{
 
+\code{Earthtide$new}
 \itemize{
   \item{et: }{An \code{Earthtide} object.}
   \item{utc: }{The date-time in UTC (POSIXct vector).}
@@ -45,9 +46,19 @@ et$print()
   \item{cutoff: }{Cutoff amplitude for constituents (numeric) 
     defaults to 1e-6}
   \item{wave_groups: }{Two column data.frame having start and end of 
-    frequency groups (data.frame).}
-  \item{catalog: }{Use the "hw95s" catalog or "ksm04" catalog(character).}
+    frequency groups (data.frame). This data.frame must have two columns
+    with the names 'start', and 'end' signifying the start and end of the 
+    wave groupings.  An optional third column 'multiplier' can be provided 
+    to scale the particular wave group.  If column names do no match, the
+    inferred column positions are start, end, multiplier.}
+  \item{catalog: }{Use the "hw95s" catalog or "ksm04" catalog (character).}
+  \item{eop: }{User defined Earth Orientation Parameter (EOP) data.frame with the 
+    following columns: datetime, ddt, ut1_utc, lod, x, y, dx, dy}
   \item{...: }{Currently not used.}
+}
+
+\code{Earthtide$predict, Earthtide$analyze}
+\itemize{
   \item{method: }{For \code{predict} and \code{analyze}. One of "gravity", 
     "tidal_potential", "tidal_tilt", "vertical_displacement", 
     "vertical_strain", "areal_strain", "volume_strain", or "ocean_tides".}
@@ -62,10 +73,9 @@ et$print()
 \section{Details}{
 
 
-\code{$new(utc, latitude, longitude, elevation, azimuth, gravity, 
-  earth_radius, earth_eccen, cutoff, wave_groups, catalog, ...)} 
-  create a new \code{Earthtide} object and initialize catalog, 
-  station and times.
+\code{$new(utc, latitude, longitude, elevation, azimuth, gravity,} \cr
+\code{earth_radius, earth_eccen, cutoff, wave_groups, catalog, ...)} \cr
+create a new \code{Earthtide} object and initialize catalog, station and times.
 
 \code{$predict(method, astro_argument)} generate a combined 
   synthetic Earth tide.
@@ -97,9 +107,9 @@ plot(gravity~datetime, et$tide(), type='l')
 
 }
 \references{
-Hartmann, T., Wenzel, H.-G., 1995. The HW95 tidal potential catalogue. Geophys. Res. Lett. 22, 3553–3556. \doi{10.1029/95GL03324}
+Hartmann, T., Wenzel, H.-G., 1995. The HW95 tidal potential catalogue. Geophys. Res. Lett. 22, 3553-3556. \doi{10.1029/95GL03324}
 
-Kudryavtsev, S.M., 2004. Improved harmonic development of the Earth tide-generating potential. J. Geod. 77, 829–838. \doi{10.1007/s00190-003-0361-2}
+Kudryavtsev, S.M., 2004. Improved harmonic development of the Earth tide-generating potential. J. Geod. 77, 829-838. \doi{10.1007/s00190-003-0361-2}
 
 Wenzel, H.G., 1996. The nanogal software: Earth tide data processing package ETERNA 3.30. Bull. Inf. Marées Terrestres, 124, pp.9425-9439. \url{http://www.eas.slu.edu/GGP/ETERNA34/MANUAL/ETERNA33.HTM}
 }

@@ -120,3 +120,24 @@ tides <- Earthtide$
 print(tides[1:5,], row.names = FALSE)
 
 
+## ----standardmethod, echo = TRUE-----------------------------------------
+
+grav_std <- calc_earthtide(utc = tms, 
+                      do_predict = TRUE,
+                      method = 'gravity',
+                      latitude = 52.3868,
+                      longitude = 9.7144)
+
+
+## ----r6method, echo = TRUE-----------------------------------------------
+
+grav_r6 <- Earthtide$new(utc = tms, 
+                         latitude = 52.3868,
+                         longitude = 9.7144)$
+  predict(method = 'gravity')$
+  tide()
+  
+
+all.equal(grav_std, grav_r6)
+
+

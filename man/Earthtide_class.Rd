@@ -41,7 +41,7 @@ et$print()
   \item{latitude: }{The station latitude (numeric) defaults to 0.}
   \item{longitude: }{The station longitude (numeric) defaults to 0.}
   \item{elevation: }{The station elevation (m) (numeric) defaults to 0.}
-  \item{azimuth: }{Earth azimuth (numeric) defaults to 0.}
+  \item{azimuth: }{Earth azimuth (numeric) defaults to 0 (degrees)}
   \item{gravity: }{Gravity at the station (m/s^2) (numeric) 0 to 
     estimate gravity from elevation and latitude.}
   \item{earth_radius: }{Radius of earth (m) (numeric) defaults to 6378136.3 }
@@ -64,13 +64,18 @@ et$print()
 \code{Earthtide$predict, Earthtide$analyze}
 \itemize{
   \item{method: }{For \code{predict} and \code{analyze}. One of "gravity", 
-    "tidal_potential", "tidal_tilt", "vertical_displacement", 
-    "vertical_strain", "areal_strain", "volume_strain", or "ocean_tides".}
+    "tidal_potential", "tidal_tilt", "vertical_displacement",
+    "horizontal_displacement", "n_s_displacement", "e_w_displacement", 
+    "vertical_strain", "areal_strain", "volume_strain", "horizontal_strain"
+    or "ocean_tides".}
   \item{astro_update: }{For \code{predict} and \code{analyze}. Integer that
     determines how often to phases are updated in number of samples. Defaults
     to 1 (every sample), but speed gains are realized with larger values.
     Typically updating every hour will have speed gains and keep precision 
     (ie 3600 for one second data, 60 for minute data, 1 for hourly data).}
+  \item{return_matrix: }{For \code{predict} and \code{analyze}. Return a 
+    matrix of tidal values instead of data.frame. The datetime column will 
+    not be present in this case (logical).}
 }
 }
 
@@ -81,11 +86,11 @@ et$print()
 \code{earth_radius, earth_eccen, cutoff, wave_groups, catalog, ...)} \cr
 create a new \code{Earthtide} object and initialize catalog, station and times.
 
-\code{$predict(method, astro_argument)} generate a combined 
+\code{$predict(method, astro_argument, return_matrix)} generate a combined 
   synthetic Earth tide.
   
-\code{$analyze(method, astro_argument)} generate components 
-  of the Earth tide for analysis.
+\code{$analyze(method, astro_argument, return_matrix, scale)} generate 
+  components of the Earth tide for analysis.
   
 \code{$lod_tide()} generate components of the LOD (Length Of Day) tide.
 

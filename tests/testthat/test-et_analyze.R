@@ -49,5 +49,40 @@ test_that("dimensions correct", {
   expect_equal(nrow(out), length(tms))
   expect_equal(ncol(out), 5)
   
+})
+  
+  
+test_that("scaling is correct", {
+  
+  # scale 
+  tms <- as.POSIXct('1990-01-01', tz = 'UTC') + seq(0, 86400*14, 60)
+  
+  wave_groups = eterna_wavegroups
+  wave_groups <- na.omit(wave_groups[wave_groups$time == 'all',])
+  
+  et <- Earthtide$new(utc = tms, 
+                      longitude = -118.67,
+                      latitude = 34.23,
+                      elevation = 500,
+                      cutoff = 1.0e-5,
+                      catalog = 'hw95s',
+                      wave_groups = wave_groups)
+  
+  out1 <- et$analyze(method = 'gravity',  scale = FALSE, astro_update = 1)$tide()
+  
+  out2 <- et$analyze(method = 'gravity',  scale = FALSE, astro_update = 10)$tide()
+  
+  out3 <- et$analyze(method = 'gravity',  scale = TRUE, astro_update = 1)$tide()
+  
+  out4 <- et$analyze(method = 'gravity',  scale = TRUE, astro_update = 10)$tide()
+  
+  
+  
+  expect_equal(out1, out2, tolerance = 1e-7)
+  expect_equal(out3, out4, tolerance = 1e-7)
+  expect_false(isTRUE(all.equal(out1, out3, tolerance = 1e-2)))
+  expect_false(isTRUE(all.equal(out2, out4, tolerance = 1e-2)))
+  
+  
   
 })

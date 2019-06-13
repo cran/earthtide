@@ -8,10 +8,11 @@
 #' @param do_predict run in predict or analyze mode
 #' @param method One or more of "gravity", 
 #'     "tidal_potential", "tidal_tilt", "vertical_displacement", 
-#'     "vertical_strain", "areal_strain", "volume_strain", or "ocean_tides",
-#'     "pole_tide", "lod_tide". The pole tide and lod_tide are used in predict
-#'     mode even if do_predict is FALSE. More than one value can only be used
-#'     if do_predict == TRUE.
+#'     "horizontal_displacement", "n_s_displacement", "e_w_displacement",
+#'     "vertical_strain", "areal_strain", "volume_strain", "horizontal_strain",
+#'     or "ocean_tides", "pole_tide", "lod_tide". The pole tide and lod_tide 
+#'     are used in predict mode even if do_predict is FALSE. More than one value
+#'     can only be used if do_predict == TRUE.
 #' @param astro_update Integer that
 #'     determines how often to phases are updated in number of samples. Defaults
 #'     to 1 (every sample), but speed gains are realized with larger values.
@@ -37,6 +38,9 @@
 #' @param catalog Use the "hw95s" catalog or "ksm04" catalog (character).
 #' @param eop User defined Earth Orientation Parameter (EOP) data.frame with the 
 #'     following columns: datetime, ddt, ut1_utc, lod, x, y, dx, dy
+#' @param return_matrix Return a matrix of tidal values instead of data.frame. 
+#'     The datetime column will not be present in this case (logical).
+#' @param scale Scale results when do_pedict is FALSE
 #' @param ... Currently not used.
 #'
 #' @return data.frame of tidal results
@@ -72,9 +76,11 @@ calc_earthtide <- function(utc,
                       wave_groups = NULL,
                       catalog = 'ksm04',
                       eop = NULL,
+                      return_matrix = FALSE,
+                      scale = TRUE,
                       ...){
   
-
+  
   et <- Earthtide$new(utc = utc, 
                       latitude = latitude,
                       longitude = longitude,
@@ -95,23 +101,42 @@ calc_earthtide <- function(utc,
   }
   
   for (i in seq_along(method)) {
-
-    if (method[i] == 'pole_tide') {
-
-      et$pole_tide()
     
+    if (method[i] == 'pole_tide') {
+      
+      et$pole_tide()
+      
     } else if (method[i] == 'lod_tide') {
       
       et$lod_tide()
       
     } else if (do_predict) {
       
-      et$predict(method = method[i], astro_update = astro_update)
-      
+      if(return_matrix) {
+        return(et$predict(method = method[i], 
+                          astro_update = astro_update, 
+                          return_matrix = return_matrix))  
+      } else {
+        et$predict(method = method[i], 
+                   astro_update = astro_update, 
+                   return_matrix = return_matrix)
+        
+      }
     } else {
+      if(return_matrix) {
+        return(et$analyze(method = method[i], 
+                          astro_update = astro_update, 
+                          return_matrix = return_matrix, 
+                          scale = scale)
+        )
+      } else {
+        
+        et$analyze(method = method[i], 
+                   astro_update = astro_update, 
+                   return_matrix = return_matrix,
+                   scale = scale)
+      }
       
-      et$analyze(method = method[i], astro_update = astro_update)
-    
     }
     
   }

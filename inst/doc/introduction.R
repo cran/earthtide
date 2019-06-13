@@ -1,56 +1,52 @@
 ## ----setup, include=FALSE------------------------------------------------
 knitr::opts_chunk$set(echo = TRUE)
-
-## ----newearthtide--------------------------------------------------------
+library(knitr)
 library(earthtide)
 
-# One month of hourly data
+## ----capabilities, echo = FALSE, results = 'asis'------------------------
+
+tidal_component <- c(
+  "tidal_potential", "gravity",  "tidal_tilt", "vertical_displacement", 
+  "horizontal_displacement", "n_s_displacement", "e_w_displacement",
+  "vertical_strain", "areal_strain", "volume_strain", "horizontal_strain",
+  "ocean_tides")
+
+output_units <- c('$meters^2/second^2$','$nanometers/second^2$', '$milliarcsec$', '$millimeter$',
+                  '$millimeter$', '$millimeter$', '$millimeter$', 
+                  '$nanostrain$', '$nanostrain$', '$nanostrain$', '$nanostrain$',
+                  '$millimeter$')
+
+status <- c("tested", "tested", "tested", "tested", 
+            "preliminary", "preliminary","preliminary", 
+            "tested","tested","tested","tested",
+            "preliminary")
+dat <- data.frame(tidal_component, status, output_units)
+names(dat) <- c('Tidal component', 'Status', 'Output units')
+kable(dat)
+
+## ----standardmethod, echo = TRUE-----------------------------------------
 tms <- as.POSIXct("2015-01-01", tz = "UTC") + 0:(24*31) * 3600
 
-et <- Earthtide$new(
-  utc = tms,
-  latitude = 52.3868,
-  longitude = 9.7144,
-  wave_groups = data.frame(start = 0.0, end = 6.0))
+gravity_tide <- calc_earthtide(utc = tms, 
+                               method = 'gravity',
+                               latitude = 52.3868,
+                               longitude = 9.7144)
 
 
-## ----lodpole, echo = FALSE, fig.width = 6.5, fig.height = 5--------------
-tide <-et$lod_tide()$
-  pole_tide()$
-  tide()
 
+## ----predict, echo = TRUE------------------------------------------------
 
-layout(matrix(1:2, ncol=1, nrow = 2))
-par(mai = c(0.4, 0.9, 0.1, 0.1))
-
-# Plot the results
-
-plot(lod_tide~datetime, tide,
-     xlab = '',
-     ylab = expression('LOD tide nm/s' ^ 2),
-     type='l',
-     lwd = 2,
-     col = '#5696BC',
-     las = 1)
-
-plot(pole_tide~datetime, tide,
-     xlab = '',
-     ylab = expression('Pole tide nm/s' ^ 2),
-     type='l',
-     lwd = 2,
-     col = '#5696BC',
-     las = 1)
-
-
-## ----predict-------------------------------------------------------------
-
-et$predict(method = 'gravity', astro_update = 24)
+gravity_tide <- calc_earthtide(utc = tms,
+                               do_predict = TRUE,
+                               method = 'gravity',
+                               latitude = 52.3868,
+                               longitude = 9.7144)
 
 
 ## ----predictplot, fig.width = 6.5, fig.height = 3, fig.ext='png', echo = FALSE----
 # Plot the results
 par(mai = c(0.6, 0.9, 0.1, 0.1))
-plot(gravity~datetime, et$tide(),
+plot(gravity~datetime, gravity_tide,
      ylab = expression('Gravity nm/s' ^ 2),
      xlab = '',
      type='l',
@@ -59,28 +55,19 @@ plot(gravity~datetime, et$tide(),
      xaxs = 'i',
      las = 1)
 
-## ----wg, fig.width = 6.5, fig.height = 8, fig.ext='png', echo = TRUE-----
-wave_groups <- na.omit(eterna_wavegroups[eterna_wavegroups$time == '1 month', 
-                                        c('start', 'end')])
+## ----analyze, echo = TRUE------------------------------------------------
+wg <- eterna_wavegroups
+wg <- na.omit(wg[wg$time=='1 month',])
 
-et <- Earthtide$new(utc = tms, 
-                    latitude = 49.00937,
-                    longitude = 8.40444,
-                    elevation = 120,
-                    cutoff = 1e-10,
-                    catalog = 'hw95s',
-                    wave_groups = wave_groups)
-
-print(wave_groups[1:5,], row.names = FALSE)
-
-## ----analyze-------------------------------------------------------------
-
-et$analyze(method = 'gravity', astro_update = 1)
+tides <- calc_earthtide(utc = tms,
+                        do_predict = FALSE,
+                        method = 'gravity',
+                        latitude = 52.3868,
+                        longitude = 9.7144,
+                        wave_groups = wg)
 
 
 ## ----analyzeplot, fig.width = 6.5, fig.height = 8, fig.ext='png', echo = FALSE----
-
-tides <- et$tide()
 
 layout(matrix(1:5, ncol=1, nrow = 5))
 par(mai = c(0.3, 0.9, 0.1, 0.1))
@@ -103,41 +90,41 @@ for (i in seq(2, 11, 2)) {
 
 
 
-## ----r6chain, echo = TRUE------------------------------------------------
+## ----analyze1month, echo = TRUE------------------------------------------
+
+tms <- as.POSIXct("2015-01-01", tz = "UTC") + 0:(24*31) * 3600
+
+wg <- eterna_wavegroups
+wg <- na.omit(wg[wg$time=='1 month',])
 
 
-tides <- Earthtide$
-  new(utc = as.POSIXct("2015-01-01", tz = "UTC") + 0:(24*31) * 3600,
-      latitude = 52.3868,
-      longitude = 9.7144,
-      wave_groups = data.frame(start = 0.0, end = 6.0))$
-  predict(method = "gravity", astro_update = 1)$
-  lod_tide()$
-  pole_tide()$
-  tide()
-  
+## ----lodpolecalc, echo = TRUE--------------------------------------------
+tide <- calc_earthtide(utc = tms,
+                       method = c('lod_tide', 'pole_tide'),
+                       latitude = 52.3868,
+                       longitude = 9.7144)
 
-print(tides[1:5,], row.names = FALSE)
+## ----lodpoleplot, echo = FALSE, fig.width = 6.5, fig.height = 5----------
 
+layout(matrix(1:2, ncol=1, nrow = 2))
+par(mai = c(0.4, 0.9, 0.1, 0.1))
 
-## ----standardmethod, echo = TRUE-----------------------------------------
+# Plot the results
 
-grav_std <- calc_earthtide(utc = tms, 
-                      do_predict = TRUE,
-                      method = 'gravity',
-                      latitude = 52.3868,
-                      longitude = 9.7144)
+plot(lod_tide~datetime, tide,
+     xlab = '',
+     ylab = expression('LOD tide nm/s' ^ 2),
+     type='l',
+     lwd = 2,
+     col = '#5696BC',
+     las = 1)
 
-
-## ----r6method, echo = TRUE-----------------------------------------------
-
-grav_r6 <- Earthtide$new(utc = tms, 
-                         latitude = 52.3868,
-                         longitude = 9.7144)$
-  predict(method = 'gravity')$
-  tide()
-  
-
-all.equal(grav_std, grav_r6)
+plot(pole_tide~datetime, tide,
+     xlab = '',
+     ylab = expression('Pole tide nm/s' ^ 2),
+     type='l',
+     lwd = 2,
+     col = '#5696BC',
+     las = 1)
 
 

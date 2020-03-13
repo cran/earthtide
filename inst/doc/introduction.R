@@ -1,9 +1,9 @@
-## ----setup, include=FALSE------------------------------------------------
+## ----setup, include=FALSE-----------------------------------------------------
 knitr::opts_chunk$set(echo = TRUE)
 library(knitr)
 library(earthtide)
 
-## ----capabilities, echo = FALSE, results = 'asis'------------------------
+## ----capabilities, echo = FALSE, results = 'asis'-----------------------------
 
 tidal_component <- c(
   "tidal_potential", "gravity",  "tidal_tilt", "vertical_displacement", 
@@ -24,7 +24,7 @@ dat <- data.frame(tidal_component, status, output_units)
 names(dat) <- c('Tidal component', 'Status', 'Output units')
 kable(dat)
 
-## ----standardmethod, echo = TRUE-----------------------------------------
+## ----standardmethod, echo = TRUE----------------------------------------------
 tms <- as.POSIXct("2015-01-01", tz = "UTC") + 0:(24*31) * 3600
 
 gravity_tide <- calc_earthtide(utc = tms, 
@@ -34,7 +34,7 @@ gravity_tide <- calc_earthtide(utc = tms,
 
 
 
-## ----predict, echo = TRUE------------------------------------------------
+## ----predict, echo = TRUE-----------------------------------------------------
 
 gravity_tide <- calc_earthtide(utc = tms,
                                do_predict = TRUE,
@@ -55,7 +55,7 @@ plot(gravity~datetime, gravity_tide,
      xaxs = 'i',
      las = 1)
 
-## ----analyze, echo = TRUE------------------------------------------------
+## ----analyze, echo = TRUE-----------------------------------------------------
 wg <- eterna_wavegroups
 wg <- na.omit(wg[wg$time=='1 month',])
 
@@ -90,21 +90,22 @@ for (i in seq(2, 11, 2)) {
 
 
 
-## ----analyze1month, echo = TRUE------------------------------------------
+## ----analyze1month, echo = TRUE-----------------------------------------------
 
 tms <- as.POSIXct("2015-01-01", tz = "UTC") + 0:(24*31) * 3600
 
 wg <- eterna_wavegroups
 wg <- na.omit(wg[wg$time=='1 month',])
 
+head(wg)
 
-## ----lodpolecalc, echo = TRUE--------------------------------------------
+## ----lodpolecalc, echo = TRUE-------------------------------------------------
 tide <- calc_earthtide(utc = tms,
                        method = c('lod_tide', 'pole_tide'),
                        latitude = 52.3868,
                        longitude = 9.7144)
 
-## ----lodpoleplot, echo = FALSE, fig.width = 6.5, fig.height = 5----------
+## ----lodpoleplot, echo = FALSE, fig.width = 6.5, fig.height = 5---------------
 
 layout(matrix(1:2, ncol=1, nrow = 2))
 par(mai = c(0.4, 0.9, 0.1, 0.1))

@@ -133,6 +133,9 @@
 
 
 
+# this is the old version -------------------------------------------------
+
+
 # get_dut1
 #
 # Downloads earth orientation data from http://hpiers.obspm.fr/eop-pc/index.php 
@@ -183,12 +186,19 @@
 # }
 
 
+
+
+# below are the new ones --------------------------------------------------
+
+
+
 # download leap second data
 get_tai_utc <- function() {
   
   tf <- tempfile()
   #utils::download.file('http://maia.usno.navy.mil/ser7/tai-utc.dat', tf)
-  utils::download.file('ftp://cddis.gsfc.nasa.gov/pub/products/iers/tai-utc.dat', tf)
+  utils::download.file('http://astroutils.astronomy.ohio-state.edu/time/tai-utc.txt', tf) # this may need to be updated
+  
   widths  <- c(17, 9, 10, 12, 12, 6, 4, 9, 1)
   tai_utc <- read.fwf(tf, widths = widths, stringsAsFactors=FALSE)
   tai_utc <- tai_utc[, c(2, 4, 6, 8)]
@@ -259,10 +269,12 @@ get_iers_a <- function(){
   
   # historical
   #utils::download.file('http://maia.usno.navy.mil/ser7/finals2000A.all', tf_all)
-  utils::download.file('ftp://cddis.gsfc.nasa.gov/pub/products/iers/finals2000A.all', tf_all)
+  # utils::download.file('ftp://cddis.gsfc.nasa.gov/pub/products/iers/finals2000A.all', tf_all)
+  utils::download.file('ftp://ftp.iers.org/products/eop/rapid/standard/finals2000A.all', tf_all)
   # daily set for update
   #utils::download.file('http://maia.usno.navy.mil/ser7/finals2000A.daily', tf_daily)
-  utils::download.file('ftp://cddis.gsfc.nasa.gov/pub/products/iers/finals2000A.daily', tf_daily)
+  # utils::download.file('ftp://cddis.gsfc.nasa.gov/pub/products/iers/finals2000A.daily', tf_daily)
+  utils::download.file('ftp://ftp.iers.org/products/eop/rapid/daily/finals2000A.daily', tf_daily)
   
   iers_all   <- read.fwf(tf_all, widths = widths, stringsAsFactors=FALSE)
   iers_daily <- read.fwf(tf_daily, widths = widths, stringsAsFactors=FALSE)
@@ -309,13 +321,7 @@ get_iers_a <- function(){
 #' \code{get_iers} returns a \code{data.frame} of earth orientation 
 #' parameters from (1962-present).  This function requires an active internet connection. 
 #' Bulletins A and B are combined giving precedence to B. 
-#' The following datasets are downloaded (~ 7 MB):
-#'   \itemize{
-#'     \item{\url{ftp://cddis.gsfc.nasa.gov/pub/products/iers/tai-utc.dat}}
-#'     \item{\url{ftp://cddis.gsfc.nasa.gov/pub/products/iers/finals2000A.all}}
-#'     \item{\url{ftp://cddis.gsfc.nasa.gov/pub/products/iers/finals2000A.daily}}
-#'     \item{\url{http://hpiers.obspm.fr/iers/eop/eopc04/eopc04_IAU2000.62-now}}
-#'   }
+#' Approximately (~ 7 MB) of data are downloaded.
 #'
 #' @return \code{data.frame} of earth orientation parameters with the following 
 #' columns: datetime, ddt, ut1_utc, lod, x, y, dx, dy.
@@ -330,6 +336,11 @@ get_iers_a <- function(){
 #' 
 get_iers <- function() {
   
+# http://astroutils.astronomy.ohio-state.edu/time/tai-utc.txt
+# http://hpiers.obspm.fr/iers/eop/eopc04/eopc04_IAU2000.62-now
+# ftp://ftp.iers.org/products/eop/rapid/standard/finals2000A.all
+# ftp://ftp.iers.org/products/eop/rapid/daily/finals2000A.daily
+
   bull_a <- get_iers_a() # bulletin A
   bull_b <- get_iers_b() # bulletin B
   
@@ -351,4 +362,3 @@ get_iers <- function() {
 #                   hw95s,
 #                   internal = TRUE,
 #                   overwrite = TRUE)
-

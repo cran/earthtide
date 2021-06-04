@@ -43,7 +43,7 @@ gravity_tide <- calc_earthtide(utc = tms,
                                longitude = 9.7144)
 
 
-## ----predictplot, fig.width = 6.5, fig.height = 3, fig.ext='png', echo = FALSE----
+## ----predictplot, fig.width = 6.5, fig.height = 3, fig.ext='png', dpi = 90, echo = FALSE----
 # Plot the results
 par(mai = c(0.6, 0.9, 0.1, 0.1))
 plot(gravity~datetime, gravity_tide,
@@ -67,7 +67,7 @@ tides <- calc_earthtide(utc = tms,
                         wave_groups = wg)
 
 
-## ----analyzeplot, fig.width = 6.5, fig.height = 8, fig.ext='png', echo = FALSE----
+## ----analyzeplot, fig.width = 6.5, fig.height = 8, fig.ext='png', dpi = 90, echo = FALSE----
 
 layout(matrix(1:5, ncol=1, nrow = 5))
 par(mai = c(0.3, 0.9, 0.1, 0.1))
@@ -105,7 +105,7 @@ tide <- calc_earthtide(utc = tms,
                        latitude = 52.3868,
                        longitude = 9.7144)
 
-## ----lodpoleplot, echo = FALSE, fig.width = 6.5, fig.height = 5---------------
+## ----lodpoleplot, echo = FALSE, fig.width = 6.5, fig.height = 5, dev = 'png', dpi = 90----
 
 layout(matrix(1:2, ncol=1, nrow = 2))
 par(mai = c(0.4, 0.9, 0.1, 0.1))

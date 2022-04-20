@@ -4,7 +4,16 @@
 \alias{get_iers}
 \title{get_iers}
 \usage{
-get_iers()
+get_iers(a_path = NULL, b_path = NULL, daily_path = NULL, tai_utc_path = NULL)
+}
+\arguments{
+\item{a_path}{ftp or http path to download IERS bullitin A}
+
+\item{b_path}{ftp or http path to download IERS bullitin B}
+
+\item{daily_path}{ftp or http path to download IERS daily data}
+
+\item{tai_utc_path}{ftp or http path to tai-utc data}
 }
 \value{
 \code{data.frame} of earth orientation parameters with the following 
@@ -14,7 +23,8 @@ columns: datetime, ddt, ut1_utc, lod, x, y, dx, dy.
 \code{get_iers} returns a \code{data.frame} of earth orientation 
 parameters from (1962-present).  This function requires an active internet connection. 
 Bulletins A and B are combined giving precedence to B. 
-Approximately (~ 7 MB) of data are downloaded.
+Approximately (~ 7 MB) of data are downloaded. This function is brittle and
+may fail when data sources change.
 }
 \examples{
 \dontrun{

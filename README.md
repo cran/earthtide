@@ -1,5 +1,5 @@
 
-# earthtide [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.2673048.svg)](https://doi.org/10.5281/zenodo.2673048) [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0) [![](https://travis-ci.org/jkennel/earthtide.svg?branch=main)](https://travis-ci.org/jkennel/earthtide) [![Coverage Status](https://img.shields.io/codecov/c/github/jkennel/earthtide/master.svg)](https://codecov.io/github/jkennel/earthtide?branch=master) [![](https://www.r-pkg.org/badges/version/earthtide?color=green)](https://cran.r-project.org/package=earthtide) [![](http://cranlogs.r-pkg.org/badges/grand-total/earthtide?color=green)](https://cran.r-project.org/package=earthtide)
+# earthtide [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.2673048.svg)](https://doi.org/10.5281/zenodo.2673048) [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0) [![R-CMD-check](https://github.com/jkennel/earthtide/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/jkennel/earthtide/actions/workflows/R-CMD-check.yaml) [![Codecov test coverage](https://codecov.io/gh/jkennel/earthtide/branch/main/graph/badge.svg)](https://app.codecov.io/gh/jkennel/earthtide?branch=main) [![](https://www.r-pkg.org/badges/version/earthtide?color=green)](https://cran.r-project.org/package=earthtide) [![](http://cranlogs.r-pkg.org/badges/grand-total/earthtide?color=green)](https://cran.r-project.org/package=earthtide)
 
 The **earthtide** package simplifies the generation of earth tides and
 wave group harmonics for analysis in **R**.
@@ -9,24 +9,24 @@ wave group harmonics for analysis in **R**.
 **earthtide** is a port of the ‘Fortran ETERNA 3.4’ (Wenzel, 1996)
 predict and part of the analyze codes with the Kudryavtsev 2004 update.
 The original ‘Fortran’ code was rewritten in **R**, and **C++** using
-the great **Rcpp**, **RcppArmadillo**, and **RcppParallel**. The package
-is useful for generating synthetic earth tides using highly accurate
-tidal catalogs for prediction and regression. Attempts were made to
-ensure that results were consistent with the ‘ETERNA 3.4’, however,
-there is always the possibility that a bug was introduced in during the
+the great **Rcpp**, **RcppEigen**, and **RcppThread**. The package is
+useful for generating synthetic earth tides using highly accurate tidal
+catalogs for prediction and regression. Attempts were made to ensure
+that results were consistent with the ‘ETERNA 3.4’, however, there is
+always the possibility that a bug was introduced in during the
 conversion and update.
 
 Hartmann, T., Wenzel, H.-G., 1995. The HW95 tidal potential catalogue.
 Geophys. Res. Lett. 22, 3553–3556.
-\\url(<https://doi.org/10.1029/95GL03324>)
+\url(<https://doi.org/10.1029/95GL03324>)
 
 Kudryavtsev, S.M., 2004. Improved harmonic development of the Earth
 tide-generating potential. J. Geod. 77, 829–838.
-\\url(<https://doi.org/10.1007/s00190-003-0361-2>)
+\url(<https://doi.org/10.1007/s00190-003-0361-2>)
 
 Wenzel, H.G. 1996: The nanogal software: Earth tide data processing
 package ETERNA 3.30. Bull. Inf. Marges Terrestres. 124, 9425-9439.
-\\url(<https://www.eas.slu.edu/GGP/ETERNA34/MANUAL/ETERNA33.HTM>)
+\url(<https://www.eas.slu.edu/GGP/ETERNA34/MANUAL/ETERNA33.HTM>)
 
 ## Installation
 
@@ -63,7 +63,7 @@ tide <-  Earthtide$
       latitude = 52.3868,
       longitude = 9.7144,
       wave_groups = data.frame(start = 0.0, end = 6.0))$
-  predict(method = "gravity", astro_update = 1)$    # compute gravity
+  predict(method = "gravity")$    # compute gravity
   lod_tide()$                                       # LOD tide column
   pole_tide()$                                      # pole tide column
   tide()                                            # return result
@@ -86,7 +86,7 @@ tide_groups <-  Earthtide$
       latitude = 52.3868,
       longitude = 9.7144,
       wave_groups = wave_groups)$                                     
-  analyze(method = 'gravity', astro_update = 1)$
+  analyze(method = 'gravity')$
   tide()
 
 print(str(tide_groups))

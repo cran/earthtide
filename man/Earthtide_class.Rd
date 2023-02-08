@@ -21,8 +21,8 @@ et <- Earthtide$new(
   catalog = "ksm04",
   wave_groups = data.frame(start = 0.0, end = 6.0))
 
-et$predict(method = "gravity", astro_update = 1)
-et$analyze(method = "gravity", astro_update = 1)
+et$predict(method = "gravity")
+et$analyze(method = "gravity")
 et$lod_tide()
 et$pole_tide()
 et$tide()
@@ -36,9 +36,12 @@ et$print()
 \itemize{
   \item{et: }{An \code{Earthtide} object.}
   \item{utc: }{The date-time in UTC (POSIXct vector).}
-  \item{latitude: }{The station latitude (WGS84) (degree) (numeric) defaults to 0.}
-  \item{longitude: }{The station longitude (WGS84) (degree) (numeric) defaults to 0.}
-  \item{elevation: }{The station ellipsoidal height (WGS84) (m) (numeric) defaults to 0.}
+  \item{latitude: }{The station latitude (WGS84) (degree) (numeric)
+    defaults to 0.0}
+  \item{longitude: }{The station longitude (WGS84) (degree) (numeric)
+    defaults to 0.0}
+  \item{elevation: }{The station ellipsoidal height (WGS84) (m) (numeric)
+    defaults to 0.0}
   \item{azimuth: }{Earth azimuth (numeric) defaults to 0 (degrees)}
   \item{gravity: }{Gravity at the station (m/s^2) (numeric) 0 to
     estimate gravity from elevation and latitude.}
@@ -54,8 +57,8 @@ et$print()
     to scale the particular wave group.  If column names do no match, the
     inferred column positions are start, end, multiplier.}
   \item{catalog: }{Use the "hw95s" catalog or "ksm04" catalog (character).}
-  \item{eop: }{User defined Earth Orientation Parameter (EOP) data.frame with the
-    following columns: datetime, ddt, ut1_utc, lod, x, y, dx, dy}
+  \item{eop: }{User defined Earth Orientation Parameter (EOP) data.frame
+    with the following columns: datetime, ddt, ut1_utc, lod, x, y, dx, dy}
   \item{...: }{Currently not used.}
 }
 
@@ -66,11 +69,6 @@ et$print()
     "horizontal_displacement", "n_s_displacement", "e_w_displacement",
     "vertical_strain", "areal_strain", "volume_strain", "horizontal_strain"
     or "ocean_tides".}
-  \item{astro_update: }{For \code{predict} and \code{analyze}. Integer that
-    determines how often to phases are updated in number of samples. Defaults
-    to 1 (every sample), but speed gains are realized with larger values.
-    Typically updating every hour will have speed gains and keep precision
-    (ie 3600 for one second data, 60 for minute data, 1 for hourly data).}
   \item{return_matrix: }{For \code{predict} and \code{analyze}. Return a
     matrix of tidal values instead of data.frame. The datetime column will
     not be present in this case (logical).}
@@ -82,7 +80,8 @@ et$print()
 
 \code{$new(utc, latitude, longitude, elevation, azimuth, gravity,} \cr
 \code{earth_radius, earth_eccen, cutoff, wave_groups, catalog, ...)} \cr
-create a new \code{Earthtide} object and initialize catalog, station and times.
+create a new \code{Earthtide} object and initialize catalog, station
+and times.
 
 \code{$predict(method, astro_argument, return_matrix)} generate a combined
   synthetic Earth tide.
@@ -106,11 +105,12 @@ et <- Earthtide$new(
   latitude = 52.3868,
   longitude = 9.7144,
   catalog = "ksm04",
-  wave_groups = data.frame(start = 0.0, end = 6.0))
+  wave_groups = data.frame(start = 0.0, end = 6.0)
+)
 
-et$predict(method = "gravity", astro_update = 1)
+et$predict(method = "gravity")
 
-plot(gravity~datetime, et$tide(), type='l')
+plot(gravity ~ datetime, et$tide(), type = "l")
 
 }
 \references{

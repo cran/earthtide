@@ -17,16 +17,24 @@ astro_der <- function(t_astro, simon) {
     .Call(`_earthtide_astro_der`, t_astro, simon)
 }
 
-legendre_bh <- function(l, m, x, csphase = -1L) {
-    .Call(`_earthtide_legendre_bh`, l, m, x, csphase)
+factorial <- function(x) {
+    .Call(`_earthtide_factorial`, x)
 }
 
-legendre_deriv_bh <- function(l, m, x) {
-    .Call(`_earthtide_legendre_deriv_bh`, l, m, x)
+log_factorial <- function(x) {
+    .Call(`_earthtide_log_factorial`, x)
 }
 
-scale_legendre_bh <- function(l, m) {
-    .Call(`_earthtide_scale_legendre_bh`, l, m)
+scale_legendre <- function(l, m) {
+    .Call(`_earthtide_scale_legendre`, l, m)
+}
+
+legendre_cpp <- function(l, m, x) {
+    .Call(`_earthtide_legendre_cpp`, l, m, x)
+}
+
+legendre_deriv_cpp <- function(l, m, x) {
+    .Call(`_earthtide_legendre_deriv_cpp`, l, m, x)
 }
 
 legendre <- function(l_max, x) {
@@ -65,7 +73,7 @@ et_predict_one <- function(astro, astro_der, k_mat, pk, body, body_inds, delta, 
     .Call(`_earthtide_et_predict_one`, astro, astro_der, k_mat, pk, body, body_inds, delta, deltar, x, y, j2000, o1, resonance, max_amp)
 }
 
-et_calculate <- function(astro, astro_der, k_mat, phases, delta, deltar, cc, ss, dgk, jcof, j2000, o1, resonance, index, multiplier, predict, scale) {
-    .Call(`_earthtide_et_calculate`, astro, astro_der, k_mat, phases, delta, deltar, cc, ss, dgk, jcof, j2000, o1, resonance, index, multiplier, predict, scale)
+et_calculate <- function(astro, astro_der, k_mat, phases, delta, deltar, cc, ss, dgk, jcof, j2000, o1, resonance, index, multiplier, predict, scale, n_thread) {
+    .Call(`_earthtide_et_calculate`, astro, astro_der, k_mat, phases, delta, deltar, cc, ss, dgk, jcof, j2000, o1, resonance, index, multiplier, predict, scale, n_thread)
 }
 

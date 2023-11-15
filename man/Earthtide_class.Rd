@@ -21,8 +21,8 @@ et <- Earthtide$new(
   catalog = "ksm04",
   wave_groups = data.frame(start = 0.0, end = 6.0))
 
-et$predict(method = "gravity")
-et$analyze(method = "gravity")
+et$predict(method = "gravity", n_thread = 1)
+et$analyze(method = "gravity", n_thread = 1)
 et$lod_tide()
 et$pole_tide()
 et$tide()
@@ -33,7 +33,7 @@ et$print()
 \section{Arguments}{
 
 \code{Earthtide$new}
-\itemize{
+\describe{
   \item{et: }{An \code{Earthtide} object.}
   \item{utc: }{The date-time in UTC (POSIXct vector).}
   \item{latitude: }{The station latitude (WGS84) (degree) (numeric)
@@ -63,7 +63,7 @@ et$print()
 }
 
 \code{Earthtide$predict, Earthtide$analyze}
-\itemize{
+\describe{
   \item{method: }{For \code{predict} and \code{analyze}. One of "gravity",
     "tidal_potential", "tidal_tilt", "vertical_displacement",
     "horizontal_displacement", "n_s_displacement", "e_w_displacement",
@@ -72,6 +72,8 @@ et$print()
   \item{return_matrix: }{For \code{predict} and \code{analyze}. Return a
     matrix of tidal values instead of data.frame. The datetime column will
     not be present in this case (logical).}
+  \item{n_thread: }{For \code{predict} and \code{analyze}. Number of threads
+    to use for parallel processing.}
 }
 }
 

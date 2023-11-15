@@ -13,8 +13,8 @@
 #'   catalog = "ksm04",
 #'   wave_groups = data.frame(start = 0.0, end = 6.0))
 #'
-#' et$predict(method = "gravity")
-#' et$analyze(method = "gravity")
+#' et$predict(method = "gravity", n_thread = 1)
+#' et$analyze(method = "gravity", n_thread = 1)
 #' et$lod_tide()
 #' et$pole_tide()
 #' et$tide()
@@ -23,7 +23,7 @@
 #'
 #' @section Arguments:
 #' \code{Earthtide$new}
-#' \itemize{
+#' \describe{
 #'   \item{et: }{An \code{Earthtide} object.}
 #'   \item{utc: }{The date-time in UTC (POSIXct vector).}
 #'   \item{latitude: }{The station latitude (WGS84) (degree) (numeric)
@@ -53,7 +53,7 @@
 #' }
 #'
 #' \code{Earthtide$predict, Earthtide$analyze}
-#' \itemize{
+#' \describe{
 #'   \item{method: }{For \code{predict} and \code{analyze}. One of "gravity",
 #'     "tidal_potential", "tidal_tilt", "vertical_displacement",
 #'     "horizontal_displacement", "n_s_displacement", "e_w_displacement",
@@ -62,6 +62,8 @@
 #'   \item{return_matrix: }{For \code{predict} and \code{analyze}. Return a
 #'     matrix of tidal values instead of data.frame. The datetime column will
 #'     not be present in this case (logical).}
+#'   \item{n_thread: }{For \code{predict} and \code{analyze}. Number of threads
+#'     to use for parallel processing.}
 #' }
 #'
 #' @section Details:
@@ -88,6 +90,7 @@
 #' @docType class
 #' @aliases Earthtide-class
 #' @importFrom R6 R6Class
+#' @importFrom RcppThread detectCores
 #' @importFrom stats approx
 #' @importFrom utils read.table
 #' @importFrom utils read.fwf
@@ -405,16 +408,18 @@ Earthtide <- R6Class(
       self$station$dgk <- self$station$dgk * dfak
       self$pk[] <- 0.0
     },
-    predict = function(method = "gravity", return_matrix = FALSE) {
+    predict = function(method = "gravity",
+                       return_matrix = FALSE,
+                       n_thread = 1) {
       self$apply_method(method)
       if (return_matrix) {
-        mat <- self$calculate(predict = TRUE)
+        mat <- self$calculate(predict = TRUE, n_thread = n_thread)
         colnames(mat) <- method
         return(mat)
       } else {
         self$tides[[method]] <-
           as.numeric(self$calculate(
-            predict = TRUE
+            predict = TRUE, n_thread = n_thread
           ))
       }
 
@@ -432,10 +437,11 @@ Earthtide <- R6Class(
     },
     analyze = function(method = "gravity",
                        return_matrix = FALSE,
-                       scale = TRUE) {
+                       scale = TRUE,
+                       n_thread = 1) {
       self$apply_method(method)
 
-      mat <- self$calculate(predict = FALSE, scale = scale)
+      mat <- self$calculate(predict = FALSE, scale = scale, n_thread = n_thread)
 
       # reset parameters after calculation
       self$prepare_station(
@@ -484,7 +490,14 @@ Earthtide <- R6Class(
         self$volume_strain()
       }
     },
-    calculate = function(predict = TRUE, scale = TRUE) {
+    calculate = function(predict = TRUE, scale = TRUE, n_thread = 1) {
+      n_cores <- detectCores()
+      if(n_thread > n_cores) {
+        warning("number of threads is more than the number of cores, setting
+                n_thread equal to the maximum number of cores.")
+        n_thread <- n_cores
+      }
+
       et_calculate(
         self$astro$astro,
         self$astro$astro_der,
@@ -502,7 +515,8 @@ Earthtide <- R6Class(
         self$catalog$id,
         self$catalog$wave_groups$multiplier,
         predict,
-        scale
+        scale,
+        n_thread
       )
     },
     pole_tide = function() {

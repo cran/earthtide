@@ -59,6 +59,9 @@
 #'     "horizontal_displacement", "n_s_displacement", "e_w_displacement",
 #'     "vertical_strain", "areal_strain", "volume_strain", "horizontal_strain"
 #'     or "ocean_tides".}
+#'   \item{astro_update: }{For \code{predict} and \code{analyze}. How often to
+#'     update astro parameters in number of samples. This speeds up code but
+#'     may make it slightly less accurate.}
 #'   \item{return_matrix: }{For \code{predict} and \code{analyze}. Return a
 #'     matrix of tidal values instead of data.frame. The datetime column will
 #'     not be present in this case (logical).}
@@ -89,6 +92,7 @@
 #'
 #' @docType class
 #' @aliases Earthtide-class
+#'
 #' @importFrom R6 R6Class
 #' @importFrom RcppThread detectCores
 #' @importFrom stats approx
@@ -96,12 +100,12 @@
 #' @importFrom utils read.fwf
 #' @importFrom utils download.file
 #' @importFrom utils data
-#' @format An \code{\link{R6Class}} generator object
+#' @format An \code{\link[R6]{R6Class}} generator object
 #'
 #'
 #' @references Hartmann, T., Wenzel, H.-G., 1995. The HW95 tidal potential catalogue. Geophys. Res. Lett. 22, 3553-3556. \doi{10.1029/95GL03324}
 #' @references Kudryavtsev, S.M., 2004. Improved harmonic development of the Earth tide-generating potential. J. Geod. 77, 829-838. \doi{10.1007/s00190-003-0361-2}
-#' @references Wenzel, H.G., 1996. The nanogal software: Earth tide data processing package ETERNA 3.30. Bull. Inf. Marées Terrestres, 124, pp.9425-9439. \url{https://www.eas.slu.edu/GGP/ETERNA34/MANUAL/ETERNA33.HTM}
+#' @references Wenzel, H.G., 1996. The nanogal software: Earth tide data processing package ETERNA 3.30. Bull. Inf. Marées Terrestres, 124, pp.9425-9439.
 #'
 #' @examples
 #'
@@ -186,6 +190,29 @@ Earthtide <- R6Class(
       self$pk <- rep(0, 25)
       self$delta <- rep(1.0, 25)
       self$deltar <- 0.0
+    },
+    check_time_increment = function(astro_update) {
+
+      dt <- unique(diff(as.numeric(self$datetime$utc)))
+
+      if(length(self$datetime$utc) == 1) {
+        self$update_coef <- 0.0
+        return(1L)
+      }
+
+      if (length(dt) != 1L) {
+        if (astro_update != 1L) {
+          warning('Times are not regularly spaced, setting astro_update to 1')
+        }
+
+        astro_update <- 1L
+        self$update_coef <- 0.0
+
+      } else {
+        self$update_coef <- pi / 180.0 * dt / 3600.0
+        astro_update <- astro_update
+      }
+      astro_update
     },
     gravity = function() {
       self$station$dgk <- self$station$dgz
@@ -409,17 +436,26 @@ Earthtide <- R6Class(
       self$pk[] <- 0.0
     },
     predict = function(method = "gravity",
+                       astro_update = 1L,
                        return_matrix = FALSE,
-                       n_thread = 1) {
+                       n_thread = 1L) {
+
       self$apply_method(method)
+      astro_update <- self$check_time_increment(astro_update)
+
       if (return_matrix) {
-        mat <- self$calculate(predict = TRUE, n_thread = n_thread)
+        mat <- self$calculate(
+          astro_update = astro_update,
+          predict = TRUE,
+          n_thread = n_thread)
         colnames(mat) <- method
         return(mat)
       } else {
         self$tides[[method]] <-
           as.numeric(self$calculate(
-            predict = TRUE, n_thread = n_thread
+            astro_update = astro_update,
+            predict = TRUE,
+            n_thread = n_thread
           ))
       }
 
@@ -436,12 +472,19 @@ Earthtide <- R6Class(
       invisible(self)
     },
     analyze = function(method = "gravity",
+                       astro_update = 1L,
                        return_matrix = FALSE,
                        scale = TRUE,
-                       n_thread = 1) {
-      self$apply_method(method)
+                       n_thread = 1L) {
 
-      mat <- self$calculate(predict = FALSE, scale = scale, n_thread = n_thread)
+      self$apply_method(method)
+      astro_update <- self$check_time_increment(astro_update)
+
+      mat <- self$calculate(
+        astro_update = astro_update,
+        predict = FALSE,
+        scale = scale,
+        n_thread = n_thread)
 
       # reset parameters after calculation
       self$prepare_station(
@@ -490,15 +533,15 @@ Earthtide <- R6Class(
         self$volume_strain()
       }
     },
-    calculate = function(predict = TRUE, scale = TRUE, n_thread = 1) {
+    calculate = function(astro_update = 1L, predict = TRUE, scale = TRUE, n_thread = 1L) {
       n_cores <- detectCores()
-      if(n_thread > n_cores) {
+      if (n_thread > n_cores) {
         warning("number of threads is more than the number of cores, setting
                 n_thread equal to the maximum number of cores.")
         n_thread <- n_cores
       }
 
-      et_calculate(
+      et_calculate_n(
         self$astro$astro,
         self$astro$astro_der,
         self$catalog$k,
@@ -508,7 +551,7 @@ Earthtide <- R6Class(
         self$catalog$cc,
         self$catalog$ss,
         self$station$dgk,
-        self$catalog$jcof - 1,
+        self$catalog$jcof - 1L,
         self$datetime$j2000,
         self$love_params$dom0,
         self$love_params$domr,
@@ -516,7 +559,9 @@ Earthtide <- R6Class(
         self$catalog$wave_groups$multiplier,
         predict,
         scale,
-        n_thread
+        n_thread,
+        astro_update,
+        self$update_coef
       )
     },
     pole_tide = function() {
@@ -559,6 +604,8 @@ Earthtide <- R6Class(
 
     # astro arguments
     astro = list(),
+
+    update_coef = NA_real_,
 
     # wavegroup catalog
     catalog = list(),

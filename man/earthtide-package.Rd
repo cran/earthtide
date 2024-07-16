@@ -2,8 +2,8 @@
 % Please edit documentation in R/earthtide-package.R
 \docType{package}
 \name{earthtide-package}
+\alias{earthtide}
 \alias{earthtide-package}
-\alias{_PACKAGE}
 \title{earthtide: R port of the earth tide processing package ETERNA
 (by Hans-Georg Wenzel) including the Kudryavtsev wave catalog.}
 \description{
@@ -26,7 +26,7 @@ Kudryavtsev, S.M., 2004. Improved harmonic development of
 
 Wenzel, H.G., 1996. The nanogal software: Earth tide data
  processing package ETERNA 3.30. Bull. Inf. Marées Terrestres, 124,
- pp.9425-9439. \url{https://www.eas.slu.edu/GGP/ETERNA34/MANUAL/ETERNA33.HTM}
+ pp.9425-9439.
 }
 \seealso{
 Useful links:

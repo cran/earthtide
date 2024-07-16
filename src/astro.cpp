@@ -24,7 +24,7 @@ Eigen::MatrixXd time_mat(const Eigen::ArrayXd& time) {
 
   const size_t n = time.size();
 
-  if(n == 0) {
+  if (n == 0) {
     Rcpp::stop("time_mat: There should be one or more times");
   }
 
@@ -44,7 +44,7 @@ Eigen::MatrixXd time_der_mat(const Eigen::ArrayXd& time) {
 
   const size_t n = time.size();
 
-  if(n == 0) {
+  if (n == 0) {
     Rcpp::stop("time_der_mat: There should be one or more times");
   }
 
@@ -187,7 +187,7 @@ Eigen::MatrixXd legendre(size_t l_max, double x) {
 
   int n = VectorXi::LinSpaced(l_max - 1, 3, l_max + 1).sum();
 
-  if(n == 0) {
+  if (n == 0) {
     Rcpp::stop("legendre: l_max leads to a zero row matrix. select a larger value");
   }
 
@@ -260,11 +260,11 @@ Eigen::MatrixXi get_catalog_indices(const Eigen::VectorXi& index,
 
   const size_t nw = index.size();
 
-  if(ng == 0) {
+  if (ng == 0) {
     Rcpp::stop("get_catalog_indices: There should at least one group");
   };
 
-  if(nw == 0) {
+  if (nw == 0) {
     Rcpp::stop("get_catalog_indices: There should be one wave in the group");
   }
 
@@ -296,7 +296,7 @@ Eigen::VectorXi subset_2_eigen(const Eigen::VectorXi& input)
   size_t counter = 0;
   VectorXi out_empty = VectorXi::Zero(0);
   VectorXi out = VectorXi::Zero(n);
-  if(n == 0) {
+  if (n == 0) {
     return(out_empty);
   }
 
@@ -309,7 +309,7 @@ Eigen::VectorXi subset_2_eigen(const Eigen::VectorXi& input)
     }
   }
 
-  if(counter == 0) {
+  if (counter == 0) {
     return(out_empty);
   }
 
@@ -341,7 +341,7 @@ Eigen::ArrayXd subset_eigen(const Eigen::ArrayXd& input,
 
   size_t n = subs.size();
 
-  if(n == 0) {
+  if (n == 0) {
     Rcpp::stop("subset_eigen: There should be at least one value to subset");
   }
 
@@ -374,9 +374,9 @@ Eigen::VectorXi unique_eigen(Eigen::VectorXi index) {
 //[[Rcpp::export]]
 Eigen::ArrayXd calc_dc2(const Eigen::MatrixXd& k_mat,
                         const Eigen::VectorXd& astro,
-                        const Eigen::ArrayXd& pk) {
+                        const Eigen::ArrayXd& pk,
+                        const double to_rad) {
 
-  const double to_rad = M_PI / 180.0;
 
   // is there a way to vectorize this?  matrix size issue
   ArrayXd dc2 = (k_mat * astro).array() + pk + 360.0;
@@ -385,34 +385,42 @@ Eigen::ArrayXd calc_dc2(const Eigen::MatrixXd& k_mat,
   return(dc2);
 }
 
+//[[Rcpp::export]]
+Eigen::ArrayXd calc_dc3(const Eigen::MatrixXd& k_mat,
+                        const Eigen::VectorXd& astro_der) {
+
+
+  // is there a way to vectorize this?  matrix size issue
+
+
+  return(k_mat * astro_der);
+}
+
+
 
 // [[Rcpp::export]]
 Eigen::ArrayXd set_fac(const Eigen::ArrayXd& body,
                        const Eigen::ArrayXi& body_inds,
                        const Eigen::MatrixXd& k_mat,
                        const Eigen::VectorXd& astro_der,
+                       const Eigen::ArrayXd& dc3,
                        const double delta,
                        const double deltar,
                        const double o1,
                        const double resonance,
-                       size_t max_amp
+                       const size_t max_amp
 )
 {
 
-  ArrayXd out = body;
+  Eigen::ArrayXd out = body;
 
   const size_t n = body_inds.size();
 
   if (n == 0) {
-    return(out/out(max_amp));
+    return(out / out(max_amp));
   }
 
-  double dc3 = 0.0;
-
-  for (size_t i = 0; i < n; ++i) {
-    dc3 = k_mat.row(body_inds(i)) * astro_der;
-    out(body_inds(i)) = delta + deltar * (dc3 - o1) / (resonance - dc3);
-  }
+  out(body_inds) = delta + deltar * (dc3(body_inds) - o1) / (resonance - dc3(body_inds));
 
   out /= out(max_amp);
 
@@ -434,19 +442,22 @@ Eigen::MatrixXd et_analyze_one(const Eigen::VectorXd& astro,
                                const double j2000,
                                const double o1,
                                const double resonance,
-                               const int max_amp,
+                               const size_t max_amp,
                                bool scale) {
 
 
+  const double to_rad = M_PI / 180.0;
 
 
   // is there a way to vectorize this?  matrix size issue
-  const ArrayXd dc2 = calc_dc2(k_mat, astro, pk);
+  const ArrayXd dc2 = calc_dc2(k_mat, astro, pk, to_rad);
+  const ArrayXd dc3 = calc_dc3(k_mat, astro_der);
 
   const ArrayXd fac = set_fac(body,
                               body_inds,
                               k_mat,
                               astro_der,
+                              dc3,
                               delta,
                               deltar,
                               o1,
@@ -493,17 +504,20 @@ double et_predict_one(const Eigen::VectorXd& astro,
                       const double j2000,
                       const double o1,
                       const double resonance,
-                      int max_amp) {
+                      const size_t max_amp) {
 
 
+  const double to_rad = M_PI / 180.0;
 
   // is there a way to vectorize this?  matrix size issue
-  const ArrayXd dc2 = calc_dc2(k_mat, astro, pk);
+  const ArrayXd dc2 = calc_dc2(k_mat, astro, pk, to_rad);
+  const ArrayXd dc3 = calc_dc3(k_mat, astro_der);
 
   const ArrayXd fac = set_fac(body,
                               body_inds,
                               k_mat,
                               astro_der,
+                              dc3,
                               delta,
                               deltar,
                               o1,
@@ -519,6 +533,9 @@ double et_predict_one(const Eigen::VectorXd& astro,
   return(output);
 
 }
+
+
+
 
 
 //[[Rcpp::export]]
@@ -557,10 +574,10 @@ Eigen::MatrixXd et_calculate(const Eigen::MatrixXd& astro,
   size_t ng = un.size();
   size_t start_seg, n_seg;
 
-  if(nt == 0) {
+  if (nt == 0) {
     Rcpp::stop("et_calculate: There should be at least one time");
   }
-  if(ng == 0) {
+  if (ng == 0) {
     Rcpp::stop("et_calculate: There should be at least one group");
   }
 
@@ -647,6 +664,352 @@ Eigen::MatrixXd et_calculate(const Eigen::MatrixXd& astro,
     }
     pool.join();
   }
+
+  return(output);
+}
+
+
+// [[Rcpp::export]]
+Eigen::MatrixXd et_analyze_n(const Eigen::VectorXd& astro,
+                             const Eigen::VectorXd& astro_der,
+                             const Eigen::MatrixXd& k_mat,
+                             const Eigen::ArrayXd& pk,
+                             const Eigen::ArrayXd& body,
+                             const Eigen::ArrayXi& body_inds,
+                             const double delta,
+                             const double deltar,
+                             const Eigen::MatrixXd& x,
+                             const Eigen::MatrixXd& y,
+                             const Eigen::VectorXd& j2000,
+                             const double o1,
+                             const double resonance,
+                             const size_t max_amp,
+                             bool scale,
+                             const double update_coef) {
+
+
+  const double to_rad = M_PI / 180.0;
+  size_t nt = j2000.size();
+  const int nr = k_mat.rows();  // number of constituents
+
+  Eigen::MatrixXd output = Eigen::MatrixXd::Zero(nt, 2);
+
+  // is there a way to vectorize this?  matrix size issue
+  const ArrayXd dc2 = calc_dc2(k_mat, astro, pk, to_rad);
+  ArrayXd dc3 = calc_dc3(k_mat, astro_der);
+
+  const ArrayXd fac = set_fac(body,
+                              body_inds,
+                              k_mat,
+                              astro_der,
+                              dc3,
+                              delta,
+                              deltar,
+                              o1,
+                              resonance,
+                              max_amp);
+
+  Eigen::Vector3d v;
+
+
+  v << 1.0, j2000[0], j2000[0] * j2000[0];
+
+  const ArrayXd fac_x = fac * (x * v).array();
+  const ArrayXd fac_y = fac * (y * v).array();
+
+  const ArrayXd dtham = (fac_x * fac_x + fac_y * fac_y).sqrt();
+  const ArrayXd dthph = dc2 - fac_y.binaryExpr(fac_x, [] (double a, double b) { return std::atan2(a, b);} ).array();
+
+  // determine phase correction
+  Eigen::ArrayXd cos_dc2 = dthph.cos();
+  Eigen::ArrayXd sin_dc2 = dthph.sin();
+  Eigen::ArrayXd dummy = Eigen::ArrayXd(nr);
+  Eigen::ArrayXd cos_c = Eigen::ArrayXd(nr);
+  Eigen::ArrayXd sin_c = Eigen::ArrayXd(nr);
+
+
+  double cc, ss;
+
+  if (nt == 1) {
+    cc = dtham.matrix().dot(cos_dc2.matrix());
+    ss = dtham.matrix().dot(sin_dc2.matrix());
+
+    if (scale) {
+      cc = cc / dtham.maxCoeff();
+      ss = ss / dtham.maxCoeff();
+    }
+
+    output << cc, ss;
+
+  } else {
+
+    dc3 = dc3 * update_coef;
+
+    // speed enhancement but sacrifices precision
+    cos_c = dc3.cos();
+    sin_c = dc3.sin();
+
+    for (size_t k = 0; k < nt; k++) {
+      cc = dtham.matrix().dot(cos_dc2.matrix());
+      ss = dtham.matrix().dot(sin_dc2.matrix());
+
+      if (scale) {
+        cc = cc / dtham.maxCoeff();
+        ss = ss / dtham.maxCoeff();
+      }
+
+      output.row(k) << cc, ss;
+
+      // update
+      dummy   = cos_dc2 * cos_c - sin_dc2 * sin_c;
+      sin_dc2 = sin_dc2 * cos_c + cos_dc2 * sin_c;
+      cos_dc2 = dummy;
+
+    }
+
+  }
+
+
+
+  return(output);
+
+}
+
+
+
+// [[Rcpp::export]]
+Eigen::VectorXd et_predict_n(const Eigen::VectorXd& astro,
+                             const Eigen::VectorXd& astro_der,
+                             const Eigen::MatrixXd& k_mat,
+                             const Eigen::ArrayXd& pk,
+                             const Eigen::ArrayXd& body,
+                             const Eigen::ArrayXi& body_inds,
+                             const double delta,
+                             const double deltar,
+                             const Eigen::MatrixXd& x,
+                             const Eigen::MatrixXd& y,
+                             const Eigen::VectorXd& j2000,
+                             const double o1,
+                             const double resonance,
+                             const size_t max_amp,
+                             const double update_coef) {
+
+
+  const int nr = k_mat.rows();  // number of constituents
+  const int nt = j2000.size();  // number of times
+
+  const double to_rad = M_PI / 180.0;
+
+  const ArrayXd dc2 = calc_dc2(k_mat, astro, pk, to_rad);
+  ArrayXd dc3 = calc_dc3(k_mat, astro_der);
+
+
+  const ArrayXd fac = set_fac(body,
+                              body_inds,
+                              k_mat,
+                              astro_der,
+                              dc3,
+                              delta,
+                              deltar,
+                              o1,
+                              resonance,
+                              max_amp);
+
+  // determine phase correction
+  Eigen::ArrayXd cos_dc2 = dc2.cos();
+  Eigen::ArrayXd sin_dc2 = dc2.sin();
+  Eigen::ArrayXd dummy = Eigen::ArrayXd(nr);
+  Eigen::ArrayXd cos_c = Eigen::ArrayXd(nr);
+  Eigen::ArrayXd sin_c = Eigen::ArrayXd(nr);
+
+  Eigen::Vector3d v = Eigen::Vector3d::Ones();
+
+  Eigen::VectorXd output(nt);
+
+  if (nt == 1) {
+
+    v[1] = j2000[0];
+    v[2] = j2000[0] * j2000[0];
+
+    output(0) = (fac * ((x * v).array().colwise() * cos_dc2 +
+      (y * v).array().colwise() * sin_dc2)).sum();
+
+  } else {
+    dc3 = dc3 * update_coef;
+
+    // speed enhancement but sacrifices precision
+    cos_c = dc3.cos();
+    sin_c = dc3.sin();
+
+    // loop through each time group
+    for (int k = 0; k < nt; k++) {
+
+      v[1] = j2000[k];
+      v[2] = j2000[k] * j2000[k];
+
+      output(k) = (fac * ((x * v).array().colwise() * cos_dc2 +
+        (y * v).array().colwise() * sin_dc2)).sum();
+
+      // update
+      dummy   = cos_dc2 * cos_c - sin_dc2 * sin_c;
+      sin_dc2 = sin_dc2 * cos_c + cos_dc2 * sin_c;
+      cos_dc2 = dummy;
+
+    }
+
+  }
+
+  return(output);
+
+}
+
+//[[Rcpp::export]]
+Eigen::MatrixXd et_calculate_n(const Eigen::MatrixXd& astro,
+                               const Eigen::MatrixXd& astro_der,
+                               const Eigen::MatrixXd& k_mat,
+                               const Eigen::ArrayXd& phases,
+                               const Eigen::ArrayXd& delta,
+                               const double deltar,
+                               const Eigen::MatrixXd& cc,
+                               const Eigen::MatrixXd& ss,
+                               const Eigen::ArrayXd& dgk,
+                               const Eigen::VectorXi& jcof,
+                               const Eigen::ArrayXd& j2000,
+                               const double o1,
+                               const double resonance,
+                               const Eigen::VectorXi& index,
+                               const Eigen::ArrayXd& multiplier,
+                               const bool predict,
+                               const bool scale,
+                               const size_t n_thread,
+                               const size_t astro_update,
+                               const double update_coef) {
+
+
+  RcppThread::ThreadPool pool(n_thread);
+
+  Eigen::ArrayXd::Index max_elem = 0;
+  size_t i_max = 0;
+
+
+  // number of times
+  const size_t nt = astro.cols();
+
+
+  // number of wave groups
+  const VectorXi un = unique_eigen(index);
+  const size_t ng = un.size();
+  size_t start_seg, n_seg;
+
+  if (nt == 0) {
+    Rcpp::stop("et_calculate: There should be at least one time");
+  }
+  if (ng == 0) {
+    Rcpp::stop("et_calculate: There should be at least one group");
+  }
+
+  // sin and cos terms
+  const ArrayXd dgk_sub = jcof.unaryExpr(dgk);
+
+  const MatrixXd x = cc.array().colwise() * dgk_sub * 1.e-10;
+  const MatrixXd y = ss.array().colwise() * dgk_sub * 1.e-10;
+
+  // get equilibrium wave amplitude
+  const ArrayXd amplitude = (x.col(0).array() * x.col(0).array() +
+                             y.col(0).array() * y.col(0).array()).sqrt();
+
+  // get the subsets for each wave group
+  const MatrixXi sub = get_catalog_indices(index, ng);
+
+  Eigen::MatrixXd output;
+  if (predict) {
+    output = Eigen::MatrixXd::Zero(nt, 1);
+  } else {
+    output = Eigen::MatrixXd::Zero(nt, 2 * ng);
+  };
+
+  size_t n_time_sub = nt / astro_update;
+
+  if (n_time_sub * astro_update < nt) {
+    n_time_sub += 1;
+  }
+
+
+  // subset for each wave group
+  for (size_t j = 0; j < ng; ++j) {
+
+    start_seg = sub(j, 0);
+    n_seg = sub(j, 1) - sub(j, 0) + 1;
+
+    const ArrayXd pk   = subset_eigen(phases, jcof.segment(start_seg, n_seg));
+    const ArrayXd body = subset_eigen(delta, jcof.segment(start_seg, n_seg));
+
+    amplitude.segment(start_seg, n_seg).maxCoeff(&max_elem);
+
+    i_max = max_elem;
+    const ArrayXi body_inds = subset_2_eigen(jcof.segment(start_seg, n_seg));
+    const MatrixXd k_mat_sub = k_mat.middleRows(start_seg, n_seg);
+    const MatrixXd x_sub = x.middleRows(start_seg, n_seg);
+    const MatrixXd y_sub = y.middleRows(start_seg, n_seg);
+    double mult = multiplier(j);
+
+    if (predict) {
+      // single curve - subset for each time
+
+      pool.parallelFor(0, n_time_sub, [&] (size_t m) {
+
+        size_t start = m * astro_update;
+        size_t astro_space = std::min(astro_update, nt - start);
+
+        output.col(0).segment(start, astro_space) += mult * et_predict_n(
+          astro.col(start),
+          astro_der.col(start),
+          k_mat_sub,
+          pk,
+          body,
+          body_inds,
+          delta(1), // is this right?
+          deltar,
+          x_sub,
+          y_sub,
+          j2000.segment(start, astro_space),
+          o1,
+          resonance,
+          i_max,
+          update_coef);
+      });
+    } else {
+      // single curve - subset for each time
+
+      pool.parallelFor(0, n_time_sub, [&] (size_t m) {
+
+        size_t start = m * astro_update;
+        size_t astro_space = std::min(astro_update, nt - start);
+
+        output.block(start, j * 2, astro_space, 2) = mult * et_analyze_n(
+          astro.col(start),
+          astro_der.col(start),
+          k_mat_sub,
+          pk,
+          body,
+          body_inds,
+          delta(1), // is this right?
+          deltar,
+          x_sub,
+          y_sub,
+          j2000.segment(start, astro_space),
+          o1,
+          resonance,
+          i_max,
+          scale,
+          update_coef);
+      });
+    }
+
+    pool.join();
+  }
+  // Rcpp::Rcout << "The value is " << output.rows() << std::endl;
+
 
   return(output);
 }

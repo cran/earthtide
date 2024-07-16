@@ -6,7 +6,7 @@
 \alias{Earthtide-class}
 \title{Earthtide class}
 \format{
-An \code{\link{R6Class}} generator object
+An \code{\link[R6]{R6Class}} generator object
 }
 \description{
 Class to generate synthetic earthtide signals.
@@ -69,6 +69,9 @@ et$print()
     "horizontal_displacement", "n_s_displacement", "e_w_displacement",
     "vertical_strain", "areal_strain", "volume_strain", "horizontal_strain"
     or "ocean_tides".}
+  \item{astro_update: }{For \code{predict} and \code{analyze}. How often to
+    update astro parameters in number of samples. This speeds up code but
+    may make it slightly less accurate.}
   \item{return_matrix: }{For \code{predict} and \code{analyze}. Return a
     matrix of tidal values instead of data.frame. The datetime column will
     not be present in this case (logical).}
@@ -120,5 +123,5 @@ Hartmann, T., Wenzel, H.-G., 1995. The HW95 tidal potential catalogue. Geophys. 
 
 Kudryavtsev, S.M., 2004. Improved harmonic development of the Earth tide-generating potential. J. Geod. 77, 829-838. \doi{10.1007/s00190-003-0361-2}
 
-Wenzel, H.G., 1996. The nanogal software: Earth tide data processing package ETERNA 3.30. Bull. Inf. Marées Terrestres, 124, pp.9425-9439. \url{https://www.eas.slu.edu/GGP/ETERNA34/MANUAL/ETERNA33.HTM}
+Wenzel, H.G., 1996. The nanogal software: Earth tide data processing package ETERNA 3.30. Bull. Inf. Marées Terrestres, 124, pp.9425-9439.
 }

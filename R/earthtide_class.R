@@ -82,6 +82,9 @@
 #' \code{$analyze(method, astro_argument, return_matrix, scale)} generate
 #'   components of the Earth tide for analysis.
 #'
+#' \code{$interpolate(utc)} interpolate earth tides. This is primarily used
+#'   to improve speed at the loss of some precision. It is run after predict.
+#'
 #' \code{$lod_tide()} generate components of the LOD (Length Of Day) tide.
 #'
 #' \code{$pole_tide()} generate components of the pole tide.
@@ -132,11 +135,11 @@ Earthtide <- R6Class(
 
     # initialization
     initialize = function(utc,
-                          latitude = 0,
-                          longitude = 0,
-                          elevation = 0,
-                          azimuth = 0,
-                          gravity = 0,
+                          latitude = 0.0,
+                          longitude = 0.0,
+                          elevation = 0.0,
+                          azimuth = 0.0,
+                          gravity = 0.0,
                           earth_radius = 6378136.3,
                           earth_eccen = 6.69439795140e-3,
                           cutoff = 1e-6,
@@ -563,6 +566,29 @@ Earthtide <- R6Class(
         astro_update,
         self$update_coef
       )
+    },
+    interpolate = function(utc) {
+
+      if (ncol(self$tides) <= 1L) {
+        stop("please calculate tides before interpolation (did you calculate with return_matrix = TRUE?).")
+      }
+
+      out <- data.frame(datetime = utc)
+
+
+      nms <- names(self$tides)
+
+      if (nms[1] == "datetime") {
+        nms <- nms[-1]
+        adj <- 1L
+      }
+
+      for (i in seq_along(nms)) {
+        out[[nms[i]]] <- stats::spline(x = self$datetime$utc, y = self$tides[[i + adj]],
+                      xout = utc, ties = "ordered")$y
+      }
+
+      self$tides <- out
     },
     pole_tide = function() {
       self$tides$pole_tide <- self$pole_t

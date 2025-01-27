@@ -39,6 +39,8 @@
 #' @param n_thread Number of threads to use for parallel processing (integer).
 #' @param astro_update How often to update astro parameters in number of
 #' samples. This speeds up code but may make it slightly less accurate.
+#' @param utc_interp The date-time in UTC (POSIXct vector) to interpolate from
+#'      the initial utc values.
 #' @param ... Currently not used.
 #'
 #' @return data.frame or matrix of tidal results
@@ -59,16 +61,16 @@
 #'   cutoff = 1.0e-5,
 #'   catalog = "ksm04",
 #'   wave_groups = wave_groups,
-#'   n_thread = 1
+#'   n_thread = 1L
 #' )
 calc_earthtide <- function(utc,
                            do_predict = TRUE,
                            method = "gravity",
-                           latitude = 0,
-                           longitude = 0,
-                           elevation = 0,
-                           azimuth = 0,
-                           gravity = 0,
+                           latitude = 0.0,
+                           longitude = 0.0,
+                           elevation = 0.0,
+                           azimuth = 0.0,
+                           gravity = 0.0,
                            earth_radius = 6378136.3,
                            earth_eccen = 6.69439795140e-3,
                            cutoff = 1e-6,
@@ -79,7 +81,9 @@ calc_earthtide <- function(utc,
                            scale = TRUE,
                            n_thread = 1L,
                            astro_update = 1L,
+                           utc_interp = NULL,
                            ...) {
+
   et <- Earthtide$new(
     utc = utc,
     latitude = latitude,
@@ -94,6 +98,8 @@ calc_earthtide <- function(utc,
     earth_radius = earth_radius,
     earth_eccen = earth_eccen
   )
+
+
 
   if (length(method) > 1) {
     if (!do_predict) {
@@ -135,8 +141,14 @@ calc_earthtide <- function(utc,
           scale = scale,
           n_thread = n_thread
         )
+
       }
     }
+  }
+
+
+  if (inherits(utc_interp, "POSIXct")) {
+    et$interpolate(utc_interp)
   }
 
   return(et$tide())

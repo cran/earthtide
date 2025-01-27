@@ -2,7 +2,7 @@ Package: earthtide
 Type: Package
 Title: Parallel Implementation of 'ETERNA 3.40' for Prediction and
         Analysis of Earth Tides
-Version: 0.1.5
+Version: 0.1.7
 Authors@R: c(person("Jonathan", "Kennel", email = "jkennel@uoguelph.ca", role = c("aut", "cre", "trl")), 
              person("Beth", "Parker", email = "bparker@uoguelph.ca", role = "ths"),
              person("Wenzel", "Hans-Georg", role = "ctb"))
@@ -15,19 +15,19 @@ Description: This is a port of 'Fortran ETERNA 3.4'
 BugReports: https://github.com/jkennel/earthtide/issues
 URL: https://github.com/jkennel/earthtide
 License: GPL-3
-Depends: R (>= 3.4.0)
+Depends: R (>= 3.5)
 Imports: Rcpp (>= 1.0.0), R6 (>= 2.3.0), RcppThread
 LinkingTo: Rcpp (>= 1.0.0), RcppThread, RcppEigen
-Suggests: testthat (>= 2.1.0), knitr, rmarkdown, covr
+Suggests: testthat (>= 2.1.0), bench, knitr, rmarkdown, covr
 RoxygenNote: 7.3.2
 VignetteBuilder: knitr
 Encoding: UTF-8
 LazyData: TRUE
 NeedsCompilation: yes
 SystemRequirements: C++17
-Packaged: 2024-07-16 15:17:04 UTC; jkennel
+Packaged: 2025-01-27 19:53:23 UTC; jkennel
 Author: Jonathan Kennel [aut, cre, trl],
   Beth Parker [ths],
   Wenzel Hans-Georg [ctb]
 Repository: CRAN
-Date/Publication: 2024-07-16 22:00:08 UTC
+Date/Publication: 2025-01-27 21:10:02 UTC
